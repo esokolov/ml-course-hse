@@ -1,0 +1,480 @@
+\usepackage[utf8]{inputenc}
+%\usepackage[sort]{cite}
+\usepackage[colorlinks,urlcolor=blue]{hyperref}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[russian]{babel}
+\usepackage{array}
+\usepackage{theorem}
+\usepackage{ifthen}
+\usepackage[ruled,section]{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage[all]{xy}
+\usepackage{graphicx}
+\usepackage{floatflt}
+%%\usepackage{pb-diagram}
+\usepackage{multicol}
+\usepackage[footnotesize]{caption2}
+\usepackage{mathrsfs}
+\usepackage{color}
+\usepackage{verbatim}
+
+\title{Математические методы обучения по прецедентам}
+\author{К. В. Воронцов}
+
+\def\vkWarning{\par{\footnotesize\rm
+    Материал находится в~стадии разработки, может содержать ошибки и~неточности.
+    Автор будет благодарен за~любые замечания и~предложения,
+    направленные по~адресу {\tt vokov@forecsys.ru},
+    либо высказанные в~обсуждении страницы
+    <<Машинное обучение (курс лекций, К.В.Воронцов)>>
+    вики-ресурса {\tt www.MachineLearning.ru}.
+
+    Перепечатка фрагментов данного материала без согласия автора является плагиатом.
+}}
+
+\def\vkMakeTitle{%
+    \maketitle\thispagestyle{empty}%
+    \vkWarning
+    \TableOfContents
+    \newpage
+}
+
+\textheight=240mm
+\textwidth=160mm
+\topmargin=-14mm
+\headsep=7mm
+%\oddsidemargin=7mm\evensidemargin=-3mm
+\oddsidemargin=0mm\evensidemargin=0mm
+\marginparwidth=36pt
+\tolerance=3000
+\hbadness=2000
+%\flushbottom
+\raggedbottom
+% подавить эффект "висячих стpок"
+\clubpenalty=10000
+\widowpenalty=10000
+\renewcommand{\baselinestretch}{1}
+%\renewcommand{\baselinestretch}{1.1} %для печати с большим интервалом
+
+% Очень стРРААШШные команды для вставки самостоятельных документов целиком
+\newenvironment{inputs}{
+    \renewcommand{\documentclass}[2][0]{\relax}
+    \renewcommand{\usepackage}[2][0]{\relax}
+    \renewcommand{\vkMakeTitle}{\relax}
+    %\renewcommand{\thispagestyle}[1]{\relax}
+    %\renewcommand{\newpage}{\relax}
+    %\renewcommand{\TableOfContents}{\relax}
+    \renewcommand{\bibliographystyle}[1]{\relax}
+    \renewcommand{\bibliography}[1]{\relax}
+    \renewenvironment{document}{\relax}{\relax}
+}{}
+
+% Комментарии
+\newcommand{\vkRem}[1]{}
+\newcounter{vkTodoCount}
+\def\thevkTodoCount{\arabic{vkTodoCount}}
+\newcommand{\TODO}[1]{
+    \par\medskip{\small\color{red}%
+        \def\subsection##1{\par\smallskip\noindent{\normalfont\large\sffamily\bfseries ##1}\par}%
+        \def\subsubsection##1{\par\smallskip\noindent{\normalfont\normalsize\sffamily\bfseries ##1}\par}%
+        \def\paragraph##1{\par\smallskip\noindent{\normalfont\normalsize\sffamily\bfseries ##1}}%
+        \marginpar{\raisebox{-3ex}{\color{red}ToDo$^{\refstepcounter{vkTodoCount}\thevkTodoCount}$}}%
+        #1}\par}
+%\newcommand{\TODO}[1]{\par\bigskip\noindent\parbox{16cm}{\sf TODO:\par\small #1}\bigskip\par}
+%\renewcommand{\TODO}[1]{}
+
+% Расширенная и урезанная версии
+\newenvironment{Full}{}{}
+\newenvironment{Short}{}{}
+\definecolor{FullVerColor}{rgb}{0,0.6,0}
+\definecolor{ShortVerColor}{rgb}{0.7,0,0.7}
+\newcommand{\MakeFullDraft}{%
+    \gdef\FullVer##1{{\color{FullVerColor}##1}}%
+    \gdef\ShortVer##1{{\color{ShortVerColor}##1}}%
+    \renewenvironment{Full}{\color{FullVerColor}}{}
+    \renewenvironment{Short}{\color{ShortVerColor}}{}
+}
+\newcommand{\MakeFullVer}{%
+    \gdef\FullVer##1{##1}%
+    \gdef\ShortVer##1{\relax}%
+    \renewenvironment{Full}{}{}
+    \renewenvironment{Short}{\comment}{\endcomment}
+}
+\newcommand{\MakeShortVer}{%
+    \gdef\FullVer##1{\relax}%
+    \gdef\ShortVer##1{##1}%
+    \renewenvironment{Full}{\comment}{\endcomment}
+    \renewenvironment{Short}{}{}
+}
+%\MakeFullDraft
+\MakeFullVer
+
+% Библиография
+\definecolor{BibColor}{rgb}{0,0,1}
+\def\BibUrl#1{\\{\def~{\char126}\footnotesize\color{BibColor}\texttt{http://#1}}}
+
+% Мои команды для сокращения текста и формул
+\renewcommand{\em}{\it}
+\newcommand{\lastTerm}{}
+\newcommand{\vkTerm}[1]{{\em #1}\renewcommand{\lastTerm}{#1}}
+\newcommand{\vkTrans}[2][void]{%
+    \ifthenelse{\equal{#1}{void}}%
+        {\footnote{\lastTerm --- #2}}%
+        {\footnote{#1 --- #2}}%
+}
+\renewcommand{\vkTrans}[2][void]{ (#2)}
+%\newcommand{\vkAddTrans}[2]{{#1}}
+%\newcommand{\vkAddTrans}[2]{{\sl #1 \small(#2)}}
+%\newcommand{\vkAddTrans}[2]{{\sl #1}\footnote{#2.}}
+
+% Полезные команды для математики
+\newcommand{\const}{\mathrm{const}}
+\newcommand{\rang}{\mathop{\mathrm{rk}}}
+\newcommand{\Tr}{\mathop{\mathrm{tr}}}
+%\newcommand{\Tr}{\mathsf{Tr\,}}
+\newcommand{\tsum}{\mathop{\textstyle\sum}\limits}
+\newcommand{\tprod}{\mathop{\textstyle\prod}\limits}
+\newcommand{\tvee}{\mathop{\textstyle\bigvee}\limits}
+\newcommand{\twedge}{\mathop{\textstyle\bigwedge}\limits}
+\newcommand{\diag}{\mathop{\mathrm{diag}}}
+\newcommand{\argmin}{\mathop{\rm arg\,min}\limits}
+\newcommand{\argmax}{\mathop{\rm arg\,max}\limits}
+\newcommand{\sign}{\mathop{\rm sign}\limits}
+\newcommand{\med}{\mathop{\rm med}\limits}
+\newcommand{\SoftMax}{\mathop{\rm SoftMax}\nolimits}
+\newcommand{\Dir}{\mathop{\rm Dir}\nolimits}
+
+\renewcommand{\geq}{\geqslant}
+\renewcommand{\leq}{\leqslant}
+\newcommand{\ophi}{\phi}
+\renewcommand{\phi}{\varphi}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\kapa}{\varkappa}
+\newcommand{\emset}{\varnothing}
+\newcommand{\cond}{\mspace{3mu}{|}\mspace{3mu}}
+\newcommand{\refuse}{\o}
+\newcommand{\Loss}{\mathscr{L}}
+\newcommand{\Expect}{\mathsf{E}}
+\newcommand{\Disp}{\mathsf{D}}
+\newcommand{\Var}{\mathsf{D}}
+
+\def\RR{\mathbb{R}}
+\def\DD{\mathbb{D}}
+\def\cL{\mathscr{L}}
+\def\cF{\mathscr{F}}
+\def\cG{\mathscr{G}}
+\def\cJ{\mathcal{J}}
+\def\cN{\mathcal{N}}
+\def\cB{\mathscr{B}}
+\def\cK{\mathscr{K}}
+\def\fF{\mathfrak{F}}
+\def\fI{\mathfrak{I}}
+\def\fM{\mathfrak{M}}
+
+\newcommand{\what}{\widehat}
+\newcommand{\wtil}{\widetilde}
+\newcommand{\ttil}{\raisebox{0.2ex}{\tiny$\sim$}}
+%\newcommand{\T}{\mathsf{T}}
+\newcommand{\T}{\textsf{\upshape т}}
+\newcommand{\phanT}{^{\vphantom{\T}}}
+\newcommand{\ExpecT}{\Expect^{\phanT}}
+
+\newcommand{\scal}[2]{\left\langle #1,#2 \right\rangle}
+%\newcommand{\scal}[2]{{#1}^\T{#2}}
+%\newcommand{\Near}[3]{{#1}_{#3,#2}}
+\newcommand{\Near}[3]{{#1}^{(#3)}_{#2}}
+%\newcommand{\Near}[3]{{#1}_{#3:#2}}
+
+%\newcommand{\vkAnd}{\mathop{\&}}
+\newcommand{\vkAnd}{\wedge}
+\newcommand{\vkQual}{Q}
+\newcommand{\vkAtop}[2]{\genfrac{}{}{0pt}{1}{#1}{#2}}
+
+% Гипергеометрическое распределение
+%\newcommand{\HyperGeom}[4]{\Gamma_{#1,#2}^{#3,#4}}
+%\newcommand{\HyperGeom}[4]{\Gamma_{#1}^{3}{}_{#2}^{#4}}
+%\newcommand{\HyperGeom}[4]{\Gamma\!
+%    \left(\!\begin{smallmatrix}
+%        #3\hfill \!& #4\hfill\\
+%        #1\hfill \!& #2\hfill
+%    \end{smallmatrix}\!\right)
+%}
+
+%\newcommand{\@hyper@geom}[5]{#1\!
+%    \left(\!\begin{smallmatrix}
+%        #4\hfill \!& #5\hfill\\
+%        #2\hfill \!& #3\hfill
+%    \end{smallmatrix}\!\right)
+%}
+%\newcommand{\HyperGeom}[4]{\@hyper@geom{h}{#1}{#2}{#3}{#4}}
+%\newcommand{\HyperGeomSum}[4]{\@hyper@geom{H}{#1}{#2}{#3}{#4}}
+%\newcommand{\HyperGeomRight}[4]{\@hyper@geom{H'}{#1}{#2}{#3}{#4}}
+
+\newcommand{\@hyper@geom}[5]{{#1}_{#2}^{#4,#3}\left(#5\right)}
+\newcommand{\hyper}[4]{\@hyper@geom{h}{#1}{#2}{#3}{#4}}
+\newcommand{\Hyper}[4]{\@hyper@geom{H}{#1}{#2}{#3}{#4}}
+\newcommand{\HyperR}[4]{\@hyper@geom{\bar{H}}{#1}{#2}{#3}{#4}}
+
+% Абзацный отступ и пропорциональные ему отступы
+\parindent=29pt
+\newlength{\myparind}
+\myparind=\parindent
+% Примочка к fleqn.sty
+%\mathindent = 2\myparind %\leftmargini
+
+% Переопределение колонтитулов
+%\renewcommand{\@oddfoot}{}
+%\renewcommand{\@oddhead}{\parbox{\textwidth}{\footnotesize Воронцов~К.\,В.\hfill\thepage\\[-2ex]\hrule}}
+%\renewcommand{\@evenfoot}{}
+%\renewcommand{\@evenhead}{\parbox{\textwidth}{\footnotesize\thepage\hfill Математические методы обучения по~прецедентам\\[-2ex]\hrule}}
+\renewcommand{\theenumii}{\asbuk{enumii}}
+
+% Переопределение колонтитулов
+\renewcommand{\ps@headings}{%
+    \renewcommand{\@oddfoot}{}%
+    \renewcommand{\@oddhead}{\parbox{\textwidth}{\footnotesize\rightmark\hfill\thepage\\[-2ex]\hrule}}%
+    \renewcommand{\@evenfoot}{}%
+    \renewcommand{\@evenhead}{\parbox{\textwidth}{\footnotesize\thepage\hfill
+        К.\,В.\,Воронцов.~Вычислительные методы обучения по~прецедентам\\[-2ex]\hrule}}
+}
+\ps@headings
+
+% Нумерацию формул переподчиним разделам
+\@addtoreset{equation}{section}
+\def\theequation{\thesection.\arabic{equation}}
+
+% Стили параграфов
+\definecolor{SecColor}{rgb}{0,0,0.5}
+\newcommand{\vkSecColor}{\color{SecColor}}
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+    {3.5ex \@plus 1ex \@minus .2ex}%
+    {2.3ex \@plus.2ex}%
+    {\normalfont\Large\sffamily\bfseries\vkSecColor}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+    {3.25ex\@plus 1ex \@minus .2ex}%
+    {1.5ex \@plus .2ex}%
+    {\normalfont\large\sffamily\bfseries\vkSecColor}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+    {3.25ex\@plus 1ex \@minus .2ex}%
+    {1.5ex \@plus .2ex}%
+    {\normalfont\normalsize\sffamily\bfseries\vkSecColor}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+    {3.25ex\@plus1ex\@minus.2ex}%
+    {-1ex\@plus-.5ex}%
+    {\normalfont\normalsize\sffamily\bfseries\vkSecColor}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+    {3.25ex \@plus1ex \@minus.2ex}%
+    {-1ex\@plus-.5ex}%
+    {\normalfont\normalsize\sffamily\bfseries\vkSecColor}}
+
+% Значок параграфа \S только в номерах разделов уровня subsection
+\renewcommand\thesubsection{\S\arabic{section}.\arabic{subsection}}
+\renewcommand\thesubsubsection{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+% Отменить значок параграфа \S в заголовке оглавления
+\newcommand{\TableOfContents}{%
+  \let\vkTempS=\S
+  \def\S{}
+  \tableofcontents
+  \let\S=\vkTempS
+}
+
+% Оформление окружений типа теорем
+%\setlength{\theorempreskipamount}{0pt}
+%\setlength{\theorempostskipamount}{0pt}
+\newcounter{vkCorollaryCount}
+\def\thevkCorollaryCount{\arabic{vkCorollaryCount}}
+\theoremstyle{plain}
+% Шаманские притопывания, чтобы ставить точку после номера теоремы
+\gdef\th@plain{\normalfont
+    \def\@begintheorem##1##2{%
+        \item[\hskip\labelsep\theorem@headerfont ##1\ ##2. ]\setcounter{vkCorollaryCount}{0}}%
+    \def\@opargbegintheorem##1##2##3{%
+        \item[\hskip\labelsep\theorem@headerfont ##1\ ##2 (##3). ]\setcounter{vkCorollaryCount}{0}}%
+}
+% Теоремы наклонным шрифтом
+\theorembodyfont{\rmfamily\slshape}
+\newtheorem{vkTheorem}{Теорема}[section]
+\newtheorem{vkLemma}[vkTheorem]{Лемма}
+\newtheorem{vkState}[vkTheorem]{Утв.}
+\newtheorem{vkDef}{Опр.}[section]
+\newtheorem{vkHypothesis}{Гипотеза}[section]
+\newtheorem{vkProblem}{Задача}[section]
+% Теоремы прямым шрифтом
+\theorembodyfont{\rmfamily}
+\newtheorem{vkExample}{Пример}[section]
+\newtheorem{vkHeuristic}{Эвристика}
+\newtheorem{vkRemark}{Замечание}[section]
+\newtheorem{vkState-rm}{Утв.}
+% Теоремы мелким прямым шрифтом (упражнения в конце главы)
+\theorembodyfont{\rmfamily\footnotesize}
+\newtheorem{vkExerc}{Упр.}[section]
+\newtheorem{vkWork}{Задание}[section]
+% Теоремо-подобные штучки
+\newenvironment{vkSolution}[1]%
+    {\begingroup\footnotesize\par\noindent{\bf Решение~\ref{#1}.}}%
+    {\par\medskip\endgroup}
+\newenvironment{vkProof}%
+    {\par\noindent{\bf Доказательство.\par\nopagebreak}}%
+    {\hfill$\scriptstyle\blacksquare$\par\medskip}
+\newenvironment{vkCorollary}%
+    {\par\bigskip\noindent{\bf Следствие\ \refstepcounter{vkCorollaryCount}\thevkCorollaryCount. }}%
+    {\par\medskip}
+\newenvironment{vkFigure}%
+    {\begin{center}}%
+    {\end{center}}
+% Контрольные вопросы
+\newcommand{\vkQuestion}[1]{%
+    \begin{vkQuest}#1\end{vkQuest}%
+}
+\newcommand{\vkAnswer}[1]{#1}
+\renewcommand{\vkQuestion}[1]{}
+
+
+% Оформление алгоритмов в пакетах algorithm, algorithmic
+%\definecolor{KwColor}{rgb}{0,0,0.9}
+\newcommand{\vkKw}[1]{{\bf\color{SecColor} #1}}
+\renewcommand{\algorithmicrequire}{\rule{0pt}{2.5ex}\vkKw{Вход:}}
+\renewcommand{\algorithmicensure}{\vkKw{Выход:}}
+\renewcommand{\algorithmicend}{\vkKw{конец}}
+\renewcommand{\algorithmicif}{\vkKw{если}}
+\renewcommand{\algorithmicthen}{\vkKw{то}}
+\renewcommand{\algorithmicelse}{\vkKw{иначе}}
+\renewcommand{\algorithmicelsif}{\algorithmicelse\ \algorithmicif}
+\renewcommand{\algorithmicendif}{\algorithmicend\ \algorithmicif}
+\renewcommand{\algorithmicfor}{\vkKw{для}}
+\renewcommand{\algorithmicforall}{\vkKw{для всех}}
+\renewcommand{\algorithmicdo}{}
+\renewcommand{\algorithmicendfor}{\algorithmicend\ \algorithmicfor}
+\renewcommand{\algorithmicwhile}{\vkKw{пока}}
+\renewcommand{\algorithmicendwhile}{\algorithmicend\ \algorithmicwhile}
+\renewcommand{\algorithmicloop}{\vkKw{цикл}}
+\renewcommand{\algorithmicendloop}{\algorithmicend\ \algorithmicloop}
+\renewcommand{\algorithmicrepeat}{\vkKw{повторять}}
+\renewcommand{\algorithmicuntil}{\vkKw{пока}}
+%\renewcommand{\algorithmiccomment}[1]{{\footnotesize // #1}}
+\renewcommand{\algorithmiccomment}[1]{{\quad--- #1}}
+\renewcommand{\listalgorithmname}{Список алгоритмов}
+% Мои дополнительные команды для описания алгоритмов
+\newcommand{\BEGIN}{\\[1ex]\hrule\vskip 1ex}
+\newcommand{\PARAMS}{\renewcommand{\algorithmicrequire}{\vkKw{Параметры:}}\REQUIRE}
+\newcommand{\INPUTOUTPUT}{\renewcommand{\algorithmicrequire}{\vkKw{Вход и Выход:}}\REQUIRE}
+\newcommand{\END}{\vskip 1ex\hrule\vskip 1ex}
+\newcommand{\vkReturn}{\vkKw{вернуть} }
+\newcommand{\vkExit}{\vkKw{выход}}
+\newcommand{\RET}{\STATE\vkReturn}
+\newcommand{\EXIT}{\STATE\vkExit}
+\newcommand{\CONTINUE}{\STATE\vkKw{следующий} }
+\newcommand{\IFTHEN}[1]{\STATE\algorithmicif\ #1 {\algorithmicthen}}
+\newcommand{\vkProcedure}[1]{{\tt #1}}
+\newcommand{\vkProc}[1]{\text{\tt #1}}
+\newcommand{\PROCEDURE}[1]{\medskip\STATE\vkKw{ПРОЦЕДУРА} \vkProcedure{#1}}
+\floatname{algorithm}{Алгоритм}
+\floatplacement{algorithm}{!t}
+% чтобы поставить точечку после номера алгоритма в \caption:
+\renewcommand\floatc@ruled[2]{\vskip2pt{\@fs@cfont #1.} #2\par}
+% чтобы можно было ссылаться на шаги алгоритма
+\newenvironment{Algorithm}[1][t]%
+    {\begin{algorithm}[#1]\begin{algorithmic}[1]%
+        \renewcommand{\ALC@it}{%
+            \refstepcounter{ALC@line}% удивительно, почему это не сделал Peter Williams?
+            \addtocounter{ALC@rem}{1}%
+            \ifthenelse{\equal{\arabic{ALC@rem}}{1}}{\setcounter{ALC@rem}{0}}{}%
+            \item}}%
+    {\end{algorithmic}\end{algorithm}}
+
+% Для включения графиков пакетом graphicx
+\DeclareGraphicsRule{.wmf}{bmp}{}{}
+\DeclareGraphicsRule{.emf}{bmp}{}{}
+\DeclareGraphicsRule{.bmp}{bmp}{}{}
+
+% Для подписей на рисунках, вставляемых includegraphics
+\def\XYtext(#1,#2)#3{\rlap{\kern#1\lower-#2\hbox{#3}}}
+\newcommand\XYT[3]{\rlap{\kern#1\lower-#2\hbox{#3}}}
+\newcommand\XYCT[4]{\rlap{\kern#1\lower-#2\hbox{\textcolor[rgb]{#3}{#4}}}}
+
+% Для оформления плавающих иллюстраций пакетами floatflt, caption2
+\renewcommand{\captionlabeldelim}{.}
+
+% Рисование нейронных сетей и диаграмм
+\newenvironment{network}%
+    {\catcode`"=12\begin{xy}<1ex,0ex>:}%
+    {\end{xy}\catcode`"=13}
+\def\nnNode"#1"(#2)#3{\POS(#2)*#3="#1"}
+\def\nnLink"#1,#2"#3{\POS"#1"\ar #3 "#2"}
+\def\nnSig{%
+    \underline{{}^\sigma\:\mathstrut}\vrule%
+    \overline{\phantom{()}}}
+\def\nnTheta{%
+    \underline{{}^\theta\:\mathstrut}\vrule%
+    \overline{\phantom{()}}}
+\def\nnFActivation{%
+    \underline{{}^\sigma\:\mathstrut}\vrule%
+    \overline{\phantom{()}}}
+
+% Скромная нумерация
+\newcounter{vkItem}
+\renewcommand{\thevkItem}{\arabic{vkItem}}
+\newenvironment{vkItemize}{\setcounter{vkItem}{0}}{}
+\newcommand{\vkItem}{\par\refstepcounter{vkItem}\thevkItem.\enspace}%  \hspace{\me}
+
+% Оформление перечней
+\renewcommand{\@listi}{
+    % вертикальные промежутки:
+    \topsep=0pt % вокруг списка
+    \parsep=0pt % между абзацами
+    \itemsep=0pt % между пунктами
+    % горизонтальные промежутки:
+    \itemindent=0pt % абзацный выступ
+    \labelsep=1ex % расстояние до метки
+    \leftmargin=\parindent % отступ слева
+    \rightmargin=0pt} % отступ справа
+
+% Перенос знака операции на следующую строку
+\newcommand\brop[1]{#1\discretionary{}{\hbox{$\mathsurround=0pt #1$}}{}}
+
+\begingroup
+\catcode`\+\active\gdef+{\mathchar8235\nobreak\discretionary{}%
+ {\usefont{OT1}{cmr}{m}{n}\char43}{}}
+\catcode`\-\active\gdef-{\mathchar8704\nobreak\discretionary{}%
+ {\usefont{OMS}{cmsy}{m}{n}\char0}{}}
+\catcode`\=\active\gdef={\mathchar12349\nobreak\discretionary{}%
+ {\usefont{OT1}{cmr}{m}{n}\char61}{}}
+\endgroup
+\def\cdot{\mathchar8705\nobreak\discretionary{}%
+ {\usefont{OMS}{cmsy}{m}{n}\char1}{}}
+\def\times{\mathchar8706\nobreak\discretionary{}%
+ {\usefont{OMS}{cmsy}{m}{n}\char2}{}}
+\AtBeginDocument{%
+\mathcode`\==32768
+\mathcode`\+=32768
+\mathcode`\-=32768
+}
+
+% На всякий случай, если пакет AmsBreakOps не подлючён
+%\providecommand\brop\relax
+
+% added by Evgeny Sokolov
+\def\XX{\mathbb{X}}
+\def\PP{\mathbb{P}}
+\def\FF{\mathcal{F}}
+\def\EE{\mathbb{E}}
+\def\NN{\mathcal{N}}
+\def\LL{\mathcal{L}}
+\def\YY{\mathbb{Y}}
+\def\AA{\mathcal{A}}
+\newenvironment{esSolution}%
+    {\begingroup\par\noindent{\bf Решение.}}%
+    {\par\hfill$\scriptstyle\blacksquare$\medskip\endgroup}
+
+\newcommand{\mat}[1]{\left(\begin{smallmatrix}#1\end{smallmatrix}\right)}
+
+\newcommand{\KL}[2]{
+    \text{KL}
+    \left(\left.
+        {#1}
+        \mspace{3mu} \right\| \mspace{3mu}
+        {#2}
+    \right)
+}

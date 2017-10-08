@@ -1,0 +1,58 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{vkCourseML}
+
+
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+
+
+\begin{document}
+\title{Машинное обучение\\Теоретическое домашнее задание №4}
+\date{}
+\author{}
+\maketitle
+
+\begin{esProblem}
+    Позволяет ли предсказывать корректные вероятности экспоненциальная функция потерь~$L(y, z) = \exp(-yz)$?
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим постановку оптимизационной задачи метода опорных векторов для линейно разделимой выборки:
+    \begin{align*}
+        \begin{cases}
+            \frac{1}{2} \| w\|^2 \to \min_{w, b},\\
+            y_i (\langle w, x\rangle + b) \ge 1, \quad i = \overline{1, \ell},
+        \end{cases}
+    \end{align*}
+    а также её видоизменёный вариант для некоторого значения $t > 0$:
+\begin{align*}
+        \begin{cases}
+            \frac{1}{2} \| w\|^2 \to \min_{w, b},\\
+            y_i (\langle w, x\rangle + b) \ge t, \quad i = \overline{1, \ell}.
+        \end{cases}
+    \end{align*}
+     Покажите, что разделяющие гиперплоскости, получающиеся в результате решения каждой из этих задач, совпадают.
+        
+\end{esProblem}
+
+\begin{esProblem}
+    Вычислите градиент $\frac{\partial}{\partial w}L(x, y; w)$ логистической функции потерь для случая линейного классификатора
+    $$L(x, y; w) = \log (1 + \exp(-y \, \langle w, x\rangle))$$
+    и упростите итоговое выражение таким образом, чтобы в нём участвовала сигмоидная функция 
+    $$\sigma(z) = \frac{1}{1 + \exp(-z)}.$$
+    При решении данной задачи вам может понадобиться следующий факт (убедитесь, что он действительно выполняется):
+    $$\sigma'(z) = \sigma(z) (1- \sigma(z)).$$ 
+\end{esProblem}
+
+\begin{esProblem}
+Ответьте на следующие вопросы:
+\begin{enumerate}
+\item Почему в общем случае распределение $p(y|x)$ для некоторого объекта $x \in \mathbb{X}$ отличается от вырожденного ($p(y|x) \in \{0,1\}$)?
+\item Почему логистическая регрессия позволяет предсказывать корректные вероятности принадлежности объекта классам?
+\item Рассмотрим оптимизационную задачу hard-margin SVM. Всегда ли в обучающей выборке существует объект $x_i$, для которого выполнено $y_i (\langle w, x_i \rangle + b) = 1$? Почему?
+\item С какой целью в постановке оптимизационной задачи soft-margin SVM вводятся переменные $\xi_i, \, i = \overline{1, \ell}?$
+\end{enumerate}
+\end{esProblem}
+
+
+\end{document}
