@@ -1,0 +1,35 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{../../vkCourseML}
+\usepackage{lipsum}
+\usepackage{indentfirst}
+\title{Машинное обучение, ФКН ВШЭ\\Домашнее задание №8}
+\author{}
+\date{}
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+
+\begin{document}
+\maketitle
+
+\begin{esProblem}
+    В алгоритме K-Means оптимизируется внутрикластерное расстояние:
+    \[
+        \sum_{k = 1}^{K} \sum_{i = 1}^{\ell}
+            [a(x_i) = k]
+            \| x_i - c_k \|^2.
+    \]
+    Покажите, что
+    \begin{itemize}
+        \item при фиксированных центрах~$c_k$ каждый объект оптимально приписывать к кластеру,
+            центр которого является ближайшим;
+        \item при фиксированном распределении объектов по кластерам~$a(x_i)$
+            оптимальное значения для центра вычисляется как средняя точка в кластере.
+    \end{itemize}
+\end{esProblem}
+
+\begin{esProblem}
+    Покажите, что алгоритм K-Means сходится за конечное число итераций,
+    причём число шагов не превосходит~$K^\ell$.
+\end{esProblem}
+
+\end{document}
