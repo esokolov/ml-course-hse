@@ -5,15 +5,11 @@ from collections import Counter
 def compute_bias_variance(regressor, dependence_fun, x_generator=np.random.uniform, noise_generator=np.random.uniform,
                           sample_size=300, samples_num=300, objects_num=200, seed=1234):
     """
-    В качестве допущения, будем оценивать $E_X\left[\mu(X)\right](x)$ как средний ответ на $x$ из samples_num
-     алгоритмов, обученных на своих подвыборках $X$
+    После генерации всех необходимых объектов, должна вызываться функция compute_bias_variance_fixed_samples.
 
     Рекомендации:
-    * Создайте вектор объектов для оценивания интеграла по $x$, затем вектор правильных ответов на нем и вектор
-      зашумленных правильных ответов. $\mathbb{E}[y|x]$ оценивается как сумма правильного ответа на объекте и
-      мат. ожидания шума (который оценивается генерацией отдельной шумовой выборки длины objects_num и усреднением
-      значений в ней). $\mathbb{E}_X [\mu(X)]$ оценивается как в предыдущей задаче: нужно обучить regressor на
-      samples_num выборках длины sample_size и усреднить предсказания на сгенерированных ранее объектах.
+    * Создайте вектор объектов для оценивания интеграла по $x$, затем вектор зашумленных правильных ответов.
+      Оцените мат. ожидание шума с помощью генерации отдельной шумовой выборки длины objects_num.
     * Проверить правильность реализации можно на примерах, которые разбирались на семинаре и в домашней работе.
 
     :param regressor: объект sklearn-класса, реализующего регрессионный алгоритм (например, DecisionTreeRegressor,
@@ -27,8 +23,7 @@ def compute_bias_variance(regressor, dependence_fun, x_generator=np.random.unifo
     :param sample_size: число объектов в выборке
     :param samples_num: число выборок, которые нужно сгенерировать, чтобы оценить интеграл по X
     :param objects_num: число объектов, которые нужно сгенерировать, чтобы оценить интеграл по x
-    :param seed: seed для функции np.random.seed; Ее вызов обязателен в начале функции и в течении выполнения
-     переопределять его нельзя
+    :param seed: seed для функции np.random.seed
 
     :return bias: смещение алгоритма regressor (число)
     :return variance: разброс алгоритма regressor (число)
@@ -37,6 +32,33 @@ def compute_bias_variance(regressor, dependence_fun, x_generator=np.random.unifo
     # ╰( ͡° ͜ʖ ͡° )つ──☆*:・ﾟ
 
     pass
+
+
+def compute_bias_variance_fixed_samples(regressor, dependence_fun, samples, objects, noise, mean_noise):
+    """
+    В качестве допущения, будем оценивать $E_X\left[\mu(X)\right](x)$ как средний ответ на $x$ из samples_num
+    алгоритмов, обученных на своих подвыборках $X$
+
+    Рекомендации:
+    * $\mathbb{E}[y|x]$ оценивается как сумма правильного ответа на объекте и мат. ожидания шума
+      $\mathbb{E}_X [\mu(X)]$ оценивается как в предыдущей задаче: нужно обучить regressor на samples_num выборках длины
+       sample_size и усреднить предсказания на сгенерированных ранее объектах.
+
+    :param regressor: объект sklearn-класса, реализующего регрессионный алгоритм (например, DecisionTreeRegressor,
+     LinearRegression, Lasso, RandomForestRegressor ...)
+    :param dependence_fun: функция, задающая истинную зависимость в данных. Принимает на вход вектор и возвращает вектор
+     такой же длины. Примеры: np.sin, lambda x: x**2
+    :param samples: samples_num выборк длины sample_size для оценки интеграла по X
+    :param objects: objects_num объектов для оценки интеграла по x
+    :param noise: шумовая компонента размерности (samples_num, sample_size)
+    :param mean_noise: среднее шумовой компоненты
+
+    :return bias: смещение алгоритма regressor (число)
+    :return variance: разброс алгоритма regressor (число)
+    """
+
+    pass
+
 
 def find_best_split(feature_vector, target_vector):
     """
