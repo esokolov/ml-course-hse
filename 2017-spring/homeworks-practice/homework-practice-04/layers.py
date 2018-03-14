@@ -25,15 +25,15 @@ class Layer:
 
     def backward(self, input, grad_output):
         """
-        Performs a backpropagation step through the layer, with respect to the given input.
+        Performs a backpropagation step through the layer, with respect to the given input. Updates layer parameters and returns gradient for next layer
+        Let x be layer weights, output – output of the layer on the given input and grad_output – gradient of layer with respect to output
 
-        To compute loss gradients w.r.t input, you need to apply chain rule (backprop):
-
-        d loss / d x  = (d loss / d layer) * (d layer / d x)
-
-        Luckily, you already receive d loss / d layer as input, so you only need to multiply it by d layer / d x.
-
-        If your layer has parameters (e.g. dense layer), you also need to update them here using d loss / d layer
+        To compute loss gradients w.r.t parameters, you need to apply chain rule (backprop):
+        (d loss / d x)  = (d loss / d output) * (d output / d x)
+        Luckily, you already receive (d loss / d output) as grad_output, so you only need to multiply it by (d output / d x)
+        If your layer has parameters (e.g. dense layer), you need to update them here using d loss / d x
+        
+        returns (d loss / d input) = (d loss / d output) * (d output / d input)
         """
 
         raise NotImplementedError("Not implemented in interface")
@@ -96,10 +96,6 @@ class Dense(Layer):
 
     def backward(self, input, grad_output):
         """
-        Computes d f / d x = d f / d dense * d dense / d x,
-        where d dense/ d x = weights transposed, and performs
-        one step of gradient descent on W and b.
-
         input shape: [batch, input_units]
         grad_output: [batch, output units]
 
@@ -170,9 +166,7 @@ class Maxpool2d(Layer):
 
     def backward(self, input, grad_output):
         """
-        This layer just propagates gradients into
-        maximum values, more preciesly grad_output
-        into corresponting argmaxes and 0 otherwise.
+        Compute gradient of loss w.r.t. Maxpool2d input
         """
 
         raise NotImplementedError("Implement me plz ;(")
