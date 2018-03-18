@@ -31,7 +31,7 @@ class Layer:
         To compute loss gradients w.r.t parameters, you need to apply chain rule (backprop):
         (d loss / d x)  = (d loss / d output) * (d output / d x)
         Luckily, you already receive (d loss / d output) as grad_output, so you only need to multiply it by (d output / d x)
-        If your layer has parameters (e.g. dense layer), you need to update them here using d loss / d x
+        If your layer has parameters (e.g. dense layer), you need to update them here using d loss / d x. The resulting update is a sum of updates in a batch.
         
         returns (d loss / d input) = (d loss / d output) * (d output / d input)
         """
@@ -116,6 +116,8 @@ class Conv2d(Layer):
 
         Initialize required weights.
         """
+
+        self.weights = # array of shape [in_channels, out_channels, kernel_size, kernel_size]
 
         raise NotImplementedError("Implement me plz ;(")
 
@@ -210,6 +212,7 @@ def softmax_crossentropy_with_logits(logits, y_true):
 def grad_softmax_crossentropy_with_logits(logits, y_true):
     """
     Compute crossentropy gradient from logits and ids of correct answers
+    Output should be divided by batch_size, so any layer update can be simply computed as sum of object updates.
     logits shape: [batch_size, num_classes]
     reference_answers: [batch_size]
     """
