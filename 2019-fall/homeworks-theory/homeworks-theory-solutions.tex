@@ -1,0 +1,486 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{amsmath, amssymb}
+\DeclareMathOperator{\Tr}{Tr}
+
+\title{ML Homework-Theory}
+\author{isadrtdinov}
+\date{November 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Linear Regression}
+
+\begin{enumerate}
+    \item Как известно, след матрицы не зависит от базиса, в котором матрица записана. При этом в жордановом базисе след матрицы равен сумме ее собственных значений. Таким образом:
+    
+    \small
+    \begin{equation*}
+        \frac{\partial}{\partial A} \sum_{i=1}^n \lambda_i = \frac{\partial}{\partial A} \Tr(A) = E
+    \end{equation*}
+    \normalsize
+
+    \item
+    \small
+    \begin{equation*}
+        \frac{\partial}{\partial A} \log \det A = \frac{1}{\det A} \frac{\partial}{\partial A} \det A = \frac{1}{\det A} \det A {(A^{-1})}^T = {(A^{-1})}^T
+    \end{equation*}
+    \normalsize
+
+    \item
+    \small
+    \begin{gather*}
+        \frac{\partial}{\partial a} \left(a^T \exp(a a^T)a \right) =
+        \frac{\partial}{\partial a} \left( a^T \left( \sum_{k=0}^{\infty} \frac{{(a a^T)}^k}{k!} \right) a\right) = \\
+        = \frac{\partial}{\partial a} \left( \sum_{k=0}^{\infty} \frac{{(a^T a)}^{k + 1}}{k!} \right) = 
+        \frac{\partial}{\partial a} \left( (a^T a) \exp(a^T a) \right) = \\
+        = \frac{\partial a^T a}{\partial a} \exp(a^T a) + a^T a \frac{\partial \exp(a^T a)}{\partial a} = 
+        2a \exp(a^T a) + a^T a \exp(a^T a) 2a = \\
+        = 2a \exp(a^T a) (1 + a^T a)
+    \end{gather*}
+    \normalsize
+
+    \item Для начала вспомним, как записывается градиент для MSE:
+
+    \small
+    \begin{equation*}
+        \nabla_w Q(w) = 2X^T (X w - y)
+    \end{equation*}{}
+    \normalsize
+
+    Тогда мы хотим минимизировать по \( \alpha \) функционал:
+
+    \small
+    \begin{equation*}
+        Q(w^{(k - 1)} - \alpha \nabla_w Q(w^{(k - 1)})) = Q(w^{(k)}) = (X w^{(k)} - y)^T (X w^{(k)} - y)
+    \end{equation*}
+    \normalsize
+
+    Дифференцируем по \( \alpha \) учитывая, что только \( w^{(k)} \) зависит от \( \alpha \):
+
+    \small
+    \begin{equation*}
+        \frac{\partial w^{(k)}}{\partial \alpha} = \frac{\partial \left( w^{(k - 1)} - \alpha \nabla_w Q(w^{(k - 1)}) \right)}{\partial \alpha} =
+        - \nabla_w Q(w^{(k - 1)})
+    \end{equation*}
+
+    \begin{gather*}
+        \frac{\partial Q(w^{(k)})}{\partial \alpha} = 
+        \frac{\partial}{\partial \alpha} \left( {(w^{(k)})}^T X^T X w^{(k)} - {(w^{(k)})}^T X^T y - y^T X w^{(k)} - y^T y \right) = \\
+        = \frac{\partial}{\partial \alpha} \left( {(w^{(k)})}^T X^T X w^{(k)} \right) +
+        {\nabla_w Q(w^{(k - 1)})}^T X^T y + y^T X \nabla_w Q(w^{(k - 1)}) = 
+    \end{gather*}
+
+    \begin{gather*}
+        = \frac{\partial}{\partial \alpha} \left( {(w^{(k - 1)})}^T - \alpha {\nabla_w Q(w^{(k - 1)})}^T \right)
+        X^T X \left( w^{(k - 1)} - \alpha \nabla_w Q(w^{(k - 1)}) \right) + \\
+        + {\nabla_w Q(w^{(k - 1)})}^T X^T y + y^T X \nabla_w Q(w^{(k - 1)}) = 
+    \end{gather*}
+
+    \begin{gather*}
+        = 2 \alpha {\nabla_w Q(w^{(k - 1)})}^T X^T X \nabla_w Q(w^{(k - 1)}) -
+        {\nabla_w Q(w^{(k - 1)})}^T X^T X w^{(k - 1)} - \\
+        - {(w^{(k - 1)})}^T X^T X \nabla_w Q(w^{(k - 1)}) + {\nabla_w Q(w^{(k - 1)})}^T X^T y + y^T X \nabla_w Q(w^{(k - 1)})
+    \end{gather*}
+    \normalsize
+
+    Отсюда получаем единственный нуль производной (обратите внимание, что в знаменателе записано число, так что на него можно разделить):
+
+    \small
+    \begin{gather*}
+        \alpha = \frac{{\nabla_w Q(w^{(k - 1)})}^T X^T (X w^{(k - 1)} - y) + ({(w^{(k - 1)})}^T X^T - y^T)X \nabla_w Q(w^{(k - 1)})}
+        {2 {\nabla_w Q(w^{(k - 1)})}^T X^T X \nabla_w Q(w^{(k - 1)})}
+    \end{gather*}
+
+    \begin{gather*}
+        \alpha = \frac{4 ({(w^{(k - 1)})}^T X^T - y^T) X X^T (X w^{(k - 1)} - y)}{2 {\nabla_w Q(w^{(k - 1)})}^T X^T X \nabla_w Q(w^{(k - 1)})}
+    \end{gather*}
+
+    \begin{gather*}
+        \alpha = \frac{({(w^{(k - 1)})}^T X^T - y^T) X X^T (X w^{(k - 1)} - y)}
+        {2 ({(w^{(k - 1)})}^T X^T - y^T) X X^T X X^T (X w^{(k - 1)} - y)}
+    \end{gather*}
+    \normalsize
+
+    Поскольку \( \frac{\partial Q(w^{(k)})}{\partial \alpha} = a\alpha + b \), где \( a > 0 \) (так как старший коэффициент - это норма вектора
+    \( X \nabla_w Q(w^{(k - 1)}) \) ), то исходный функционал - это парабола с ветвями вверх (по \( \alpha \)), то полученный нуль производной -
+    это единственная точка минимума функционала.
+
+    \item Покажем, что минимум квантильной регрессии достигается при $ C = \tau $-квантиль выборки $ y $, обозначим его за $ q_{\tau} $.
+    По аналогии задачи с минимумом MAE с семинара рассмотрим три случая (для случая $ C < q_{\tau} $, обратный рассматривается аналогично):
+
+    \small
+    \begin{equation*}
+        {\rho}_{\tau}(y_i - C) - {\rho}_{\tau}(y_i - q_{\tau}) = 
+        \begin{cases}
+            (\tau - 1)(y_i - C) - (\tau - 1)(y_i - q_{\tau}), \quad y_i < C \\
+            \tau(y_i - C) - (\tau - 1)(y_i - q_{\tau}), \quad C \le y_i \le q_{\tau} \\
+            \tau(y_i - C) - \tau(y_i - q_{\tau}), \quad q_{\tau} < y_i
+        \end{cases}
+    \end{equation*}
+
+    \begin{equation*}
+        {\rho}_{\tau}(y_i - C) - {\rho}_{\tau}(y_i - q_{\tau}) = 
+        \begin{cases}
+            \tau(q_{\tau} - C) - (q_{\tau} - C), \quad y_i < C \\
+            \tau(q_{\tau} - C) - (q_{\tau} - y_i), \quad C \le y_i \le q_{\tau} \\
+            \tau(q_{\tau} - C), \quad q_{\tau} < y_i
+        \end{cases}
+    \end{equation*}
+        
+    \begin{equation*}
+        {\rho}_{\tau}(y_i - C) - {\rho}_{\tau}(y_i - q_{\tau}) \ge
+        \tau(q_{\tau} - C) - (q_{\tau} - C)\left[ y_i \le q_{\tau} \right]
+    \end{equation*}
+    \normalsize
+
+    Просуммируем по всей выборке $ y $ (здесь $ Q_{\tau} $ - это средняя ошибка квантильной регрессии):
+
+    \small
+    \begin{gather*}
+        l Q_{\tau} (C) - l Q_{\tau} (q_{\tau}) \ge
+        l \tau(q_{\tau} - C) - (q_{\tau} - C) \sum_{i=1}^{l} \left[ y_i \le q_{\tau} \right] \ge \\
+        \ge l \tau(q_{\tau} - C) - (q_{\tau} - C) l \tau = 0
+    \end{gather*}
+    \normalsize
+
+    Таким образом, $ q_{\tau} $ - оптимальная константа функционала $ Q_{\tau} $
+
+    \item Распишем ошибку алгоритма на одном объекте:
+
+    \small
+    \begin{gather*}
+        L(a(x_i), y_i) = {\left(y_i - \frac{\sum_{j \in B_{r(x_i)} \backslash \{ i \}} y_j}{n_{r(x_i)} - 1} \right)}^2
+        \left[ n_{r(x_i)} > 1 \right] + y_i^2 \left[ n_{r(x_i)} = 1 \right] = \\
+        = {\left( \frac{y_i (n_{r(x_i)} - 1) - ((\sum_{j \in B_{r(x_i)}} y_j) - y_i )}{n_{r(x_i)} - 1} \right)}^2
+        \left[ n_{r(x_i)} > 1 \right] + y_i^2 \left[ n_{r(x_i)} = 1 \right] = \\
+        = {\left( \frac{n_{r(x_i)} \left( y_i - \overline{y}_{r(x_i)} \right) }{n_{r(x_i)} - 1}\right)}^2
+        \left[ n_{r(x_i)} > 1 \right] + y_i^2 \left[ n_{r(x_i)} = 1 \right]
+    \end{gather*}{}
+    \normalsize
+
+    Здесь под $ n_{r(x_i)} $ имеется в виду общее число объектов выборки в ячейке $ r(x_i) $ (включая $ x_i $),
+    а под $ \overline{y}_{r(x_i)} $ - средний таргет по соответсвующей ячейке. Очевидным образом, обе эти величины
+    могут быть подсчитаны по всем ячейкам за $ O(l) $. Эти значения фигурируют в финальной формуле, которая получается
+    усреднением ошибки на одном объекте по всем объектам%
+
+    \small
+    \begin{equation*}
+        L = \frac{1}{l} \sum_{i=1}^{l} \left(
+        {\left( \frac{n_{r(x_i)} \left( y_i - \overline{y}_{r(x_i)} \right) }{n_{r(x_i)} - 1}\right)}^2
+        \left[ n_{r(x_i)} > 1 \right] + y_i^2 \left[ n_{r(x_i)} = 1 \right] \right)
+    \end{equation*}
+    \normalsize
+
+    Таким образом, вся формула вычисляется за $ O(l) $.
+\end{enumerate}
+
+\section{Linear Classification}
+
+\begin{enumerate}
+    \item 
+    \item
+    \item
+    \item Для начала представим ранги элементов в аналитическом виде. Ранг элемента - это число элементов, не больших данного (включая его самого).
+    Для удобства обозначений будем считать, что индексация ведется по возрастанию ответов классификатора. Тогда можно записать следующее:
+
+    \small
+    \begin{gather*}
+        r_{(i)} = \sum_{j \le i} 1 = \sum_{j \le i} \left[ y_{(j)} = -1 \right] + \sum_{j \le i} \left[ y_{(j)} = +1 \right]
+    \end{gather*}
+    \normalsize
+    
+    Теперь посчитаем $ U_+ $ статистику:
+
+    \small
+    \begin{gather*}
+        U_+ = \sum_{i : y_{(i)} = +1} r_{(i)} - \frac{l_+(l_+ + 1)}{2} = 
+        \sum_{i=1}^l \left[ y_{(i)} = +1 \right] r_{(i)} - \frac{l_+(l_+ + 1)}{2} = \\
+        = \sum_{i=1}^l \left( \left[ y_{(i)} = +1 \right] \sum_{j < i} \left[ y_{(j)} = -1 \right] \right) + \\
+        + \sum_{i=1}^l \left( \left[ y_{(i)} = +1 \right] \sum_{j \le i} \left[ y_{(j)} = +1 \right] \right) - \frac{l_+(l_+ + 1)}{2} = \\
+        = \sum_{j < i} \left[ y_{(j)} < y_{(i)} \right] + \sum_{i = 1}^{l_+} i - \frac{l_+(l_+ + 1)}{2} = \\
+        = \sum_{j < i} \left[ y_{(j)} < y_{(i)} \right]
+    \end{gather*}
+    \normalsize
+    
+    Таким образом, $ \frac{U_+}{l_+ l_- } $ = $ \frac{\sum_{j < i} \left[ y_{(j)} < y_{(i)} \right]}{l_+ l_-} $, а это и есть не что иное, как AUC-ROC,
+    то есть число пар объектов из разных классов, верно разделенных классификатором, к общему числу пар.
+    
+    \item Посчитаем $ \arg \min_{b \in \mathbb{R}} \mathbb{E} \left[ L(y, b) | x \right]$:
+
+    \small
+    \begin{gather*}
+        \mathbb{E} \left[ L(y, b) | x \right] = p(y = +1 | x) e^{-b} + (1 - p(y = +1 | x)) e^{b} \\
+        \frac{\partial \mathbb{E} \left[ L(y, b) | x \right]}{\partial b} = - p(y = +1 | x) e^{-b} + (1 - p(y = +1 | x)) e^{b} = 0 \\
+        (1 - p(y = +1 | x)) e^{2b} = p(y = +1 | x) \\
+        b = \frac{1}{2} \log {\left( \frac{p(y = +1 | x)}{1 - p(y = +1 | x)} \right)}
+    \end{gather*}
+    \normalsize
+
+    Очевидно, что это минимум функционала, так как:
+
+    \small
+    \begin{equation*}
+        \lim_{|b| \rightarrow \infty} \mathbb{E} \left[ L(y, b) | x \right] = + \infty,
+    \end{equation*}
+    \normalsize
+
+    а полученный экстремум единственный. Мы получили функцию, которая не равна тождественно $ p(y = +1 | x) $.
+    Таким образом, экспоненциальная функция потерь не способна предсказывать истинные вероятности.
+
+    \item Пусть $ w_1, b_1 $ - оптимальное решение первой оптимизационной задачи (из лекции известно, что оно существует и единственно).
+    Покажем, что $ t w_1, t b_1 $ - это оптимальное решение второй задачи. Для начала проверим, что эти значения подходят под ограничения задачи:
+
+    \small
+    \begin{gather*}
+        y_i (<w_1, x_i> + b_1) \ge 1 \Rightarrow \\
+        \Rightarrow y_i (<t w_1, x_i> + t b_1) = t y_i (<w_1, x_i> + b_1) \ge t
+    \end{gather*}
+    \normalsize
+
+    Это действительно так. Предположим теперь, что это решение не является оптимальным, то есть:
+
+    \small
+    \begin{equation*}
+        \exists w_2 \in \mathbb{R}^d, b_2 \in \mathbb{R}:
+        \begin{cases}
+            {|| w_2 ||}^2 < {|| t w_1 ||}^2 \\
+            y_i (<w_2, x_i> + b_2) \ge t
+        \end{cases}
+    \end{equation*}
+    \normalsize
+
+    Но тогда $ \frac{w_2}{t}, \frac{b_2}{t} $ - это допустимое решение первой задачи, лучшее, чем оптимальное $ w_1, b_1 $:
+
+    \small
+    \begin{equation*}
+        \begin{cases}
+            {|| \frac{w_2}{t} ||}^2 < {|| w_1 ||}^2 \\
+            y_i (<\frac{w_2}{t}, x_i> + \frac{b_2}{t}) \ge 1
+        \end{cases}
+    \end{equation*}
+    \normalsize
+
+    Получили противоречие с оптимальностью решения $ w_1, b_1 $. Таким образом, $ t w_1, t b_1 $ - это оптимальное решение второй задачи,
+    а поскольку коэффициенты разделяющих гиперплоскостей пропорциональны, то сами гиперплоскости совпадают.
+
+    \item Посчитаем производную сигмоиды:
+
+    \small
+    \begin{gather*}
+        \sigma'(z) = -\frac{1}{{(1 + e^{-z})}^2} \left( -e^{-z} \right) = \frac{e^{-z}}{{(1 + e^{-z})}^2} = \\
+        = \frac{1}{1 + e^{-z}} \left( 1 - \frac{1}{1 + e^{-z}} \right) = \sigma(z) (1 - \sigma(z))
+    \end{gather*}
+    \normalsize
+
+    Немного преобразуем функцию потерь и посчитаем градиент:
+
+    \small
+    \begin{gather*}
+        L(x, y, w) = \log{\left(1 + \exp{(-y <w, x>)}\right)} = -\log{\left(\sigma(-y <w, x>)\right)}
+    \end{gather*}
+
+    \begin{gather*}
+        \frac{\partial L}{\partial w} =
+        -\frac{1}{\sigma(-y <w, x>)} \sigma(-y <w, x>)) \left( 1 - \sigma(-y <w, x>) \right) (-y x) = \\
+        = y x \left( 1 - \sigma(-y <w, x>) \right)
+    \end{gather*}
+    \normalsize
+
+\end{enumerate}
+
+\section{Trees}
+
+\begin{enumerate}
+    \item
+    \begin{enumerate}
+        \item Для случая $ L(y, c) = {(y - c)}^2 $ в качестве критерия информативности мы получаем MSE, а как известно, среднее - это оптимальная константа
+        для MSE. Таким образом:
+
+        \small
+        \begin{equation*}
+            c = \frac{1}{|R|} \sum_{(x_i, y_i) \in R} y_i
+        \end{equation*}
+
+        \begin{equation*}
+            H(R) = \frac{1}{|R|} \sum_{(x_i, y_i) \in R} \left( y_i - \frac{\sum_{(x_i, y_i) \in R} y_i}{|R|}\right) = \mathbb{D} \left[ y \right]
+        \end{equation*}
+        \normalsize
+
+        \item Далее, считая, что $ c \in \mathbb{R}^K $, найдем оптимальный вектор для критерия информативности:
+
+        \small
+        \begin{gather*}
+            H(R, c) = \frac{1}{|R|} \sum_{(x_i, y_i) \in R} \sum_{k=1}^K {(c_k - \left[ y_i = k \right])}^2 = \\
+            = \frac{1}{|R|} \sum_{(x_i, y_i) \in R} \sum_{k=1}^K (c_k^2 - 2 c_k \left[ y_i = k \right] + \left[ y_i = k \right]) = \\
+            = \frac{1}{|R|} \sum_{k=1}^K (|R| c_k^2 - 2 c_k n_k + n_k) = \sum_{k=1}^K (c_k^2 - 2 c_k p_k + p_k)
+        \end{gather*}
+        \normalsize
+
+        Здесь $ n_k $ - число объектов класса $ k $, $ p_k $ - соответственно, их доля. Поскольку получилась сумма по всем классам,
+        то прооптимизируем функционал отдельно по каждому $ c_k $:
+
+        \small
+        \begin{equation*}
+            \frac{\partial H}{\partial c_k} = 2 c_k - 2 p_k = 0 \Rightarrow c_k = p_k
+        \end{equation*}
+        \normalsize
+
+        Очевидно, при $ c = (p_1, ..., p_k) $ достигается минимум функционала. Подставим это значение и посчитаем критерий информативности:
+
+        \small
+        \begin{equation*}
+            H(R) = \sum_{k=1}^K (p_k^2 - 2 p_k^2 + p_k) = \sum_{k=1}^K (p_k - p_k^2) = 1 - \sum_{k=1}^K p_k^2
+        \end{equation*}
+        \normalsize
+
+        Это и есть не что иное, как критерий Джини.
+
+        \item В условии забыто очень важное ограничение на $ c $: $ \sum_{k=1}^{K} c_k = 1 $ (иначе можно взять $ c_k $ сколь угодно
+            большими и получим $ L(y, c) $ сколь угодно маленьким, даже отрицательным). Но для начала подставим функцию потерь в критерий
+        информативности и запишем оптимизационную задачу. Первый шаг аналогичен первому пункту:
+
+        \small
+        \begin{gather*}
+            H(R, c) = - \frac{1}{|R|} \sum_{(x_i, y_i) \in R} \sum_{k=1}^K \left[ y_i = k \right] \log{c_k} = - \sum_{k=1}^K p_k \log{c_k}
+        \end{gather*}
+        \normalsize
+
+        Задача оптимизации:
+
+        \small
+        \begin{gather*}
+            \begin{cases}
+                - \sum_{k=1}^K p_k \log{c_k} \rightarrow \min_{c_k} \\
+                \sum_{k=1}^{K} c_k = 1 \\
+                c_k > 0, k = 1 ... K
+            \end{cases}
+        \end{gather*}
+        \normalsize
+        
+        Решим ее с помощью метода Лагранжа для условного экстремума:
+        
+        \small
+        \begin{align*}
+            L(c) = - \sum_{k=1}^K p_k \log{c_k} + \lambda \left( \sum_{k=1}^{K} c_k - 1 \right)
+        \end{align*}
+        
+        \begin{align*}
+            \begin{cases}
+                \frac{\partial L}{\partial c_k} = -\frac{p_k}{c_k} + \lambda = 0 \\
+                \phi(c) = \sum_{k=1}^{K} c_k - 1 = 0
+            \end{cases}
+        \end{align*}
+
+        \begin{align*}
+            \begin{cases}
+                c_k = \frac{p_k}{\lambda} \\
+                \sum_{k=1}^{K} \frac{p_k}{\lambda} = 1
+            \end{cases}
+        \end{align*}
+        
+        \begin{align*}
+            \begin{cases}
+                \lambda = \sum_{k=1}^{K} p_k = 1 \\
+                c_k = p_k
+            \end{cases}
+        \end{align*}
+        \normalsize
+        
+        Таким образом:
+        
+        \begin{equation*}
+            H(R) = - \sum_{k=1}^K p_k \log{p_k}
+        \end{equation*}
+        
+        А это и есть энтропийный критерий.
+    \end{enumerate}
+    
+    \item При построении дерева глубины $ D $ нам необходимо выбрать предикат для $ \le 2^D - 1 $ узла. Для выбора предиката в узле дерева нужно
+    перебрать все $ d $ признаков, для каждого признака есть $ \le l - 1 $ возможных пороговых значений, для всех порогов критерий информативности
+    считается за константное время. Таким образом, общее время построения дерева: $ O((2^D - 1)d(l - 1)) = O(2^Dld) $.
+\end{enumerate}
+
+\section{BVD}
+
+\begin{enumerate}
+    \item Найдем смещение напрямую через формулу:
+
+    \small
+    \begin{gather*}
+        bias = \mathbb{E}_x \left[ {\left( \mathbb{E}_X \left[ \mu (X)(x) \right] - \mathbb{E}\left[ y | x \right] \right) }^2 \right] =
+        \mathbb{E}_x \left[ {\left( C - x^T x \right) }^2 \right] = \\
+        = C^2 - 2 C \mathbb{E}_x \left[ x^T x \right] + \mathbb{E}_x \left[ {(x^T x)}^2 \right]
+    \end{gather*}
+    \normalsize
+
+    Поскольку известно распределение $ x $, найдем матожидание напрямую:
+
+    \small
+    \begin{gather*}
+        \mathbb{E}_x \left[ x^T x \right] = \int_{{\left[ 0, 1 \right]}^d} (x_1^2 + ... + x_d^2) d x_1 ... d x_d = d \int_0^1 x_1^2 d x_1 =
+        \frac{d}{3}
+    \end{gather*}
+
+    \begin{gather*}
+        \mathbb{E}_x \left[ {(x^T x)}^2 \right] = \int_{{\left[ 0, 1 \right]}^d} {(x_1^2 + ... + x_d^2)}^2 d x_1 ... d x_d = \\
+        \int_{{\left[ 0, 1 \right]}^d} \left( \sum_{i} x_i^4 + \sum_{i \ne j} x_i^2 x_j^2 \right) d x_1 ... d x_d = \\
+         = d \int_0^1 x_1^4 d x_1 + d(d - 1) \int_0^1 x_1^2 d x_1 \int_0^1 x_2^2 d x_2 = \frac{d}{5} + \frac{d(d - 1)}{9}
+    \end{gather*}
+    \normalsize
+
+    Получаем ответ:
+
+    \begin{equation*}
+        bias = C^2 - \frac{2Cd}{3} + \frac{d}{5} + \frac{d(d - 1)}{9}
+    \end{equation*}
+
+    \item Начнем с $ \mathbb{E}\left[ y | x \right] $, тут все просто:
+
+    \begin{equation*}
+        \mathbb{E}\left[ y | x \right] = \mathbb{E}[ f_x + \varepsilon | x ] = f_x
+    \end{equation*}
+
+    Теперь посчитаем $ \mathbb{E}_X \left[ \mu (X)(x) \right] $ (обратите внимание, что здесь $ f_x $ - это константа, не зависящая
+    от обучающей выборки, а потому она выносится за матожидание, ошибка также входит в выборку $X$, поэтому по ней берется ожидание, и она независима с распределением $ X $):
+
+    \begin{gather*}
+        \mathbb{E}_X \left[ \mu (X)(x) \right] = \mathbb{E}_X \left[ \hat{f}_x \right] =
+        \mathbb{E}_X \left[ \frac{1}{l} \sum_{i=1}^l \left[ X_i = x \right] (f_x + \varepsilon) \right] = \\
+        = \frac{f_x}{l} \mathbb{E}_X \left[ \sum_{i=1}^l \left[ X_i = x \right] \right] +
+        \frac{1}{l} \mathbb{E}_X \left[ \sum_{i=1}^l \left[ X_i = x \right] \right] \mathbb{E}_X \left[ \varepsilon \right] = \\
+        = \frac{f_x}{l} \sum_{i=1}^l \mathbb{P}_X ( X_i = x ) = \frac{f_x}{l} \sum_{i=1}^l \frac{1}{K} = \frac{f_x}{K}
+    \end{gather*}
+
+    Отсюда находим смещение:
+
+    \begin{gather*}
+        bias = \mathbb{E}_x \left[ {\left( \mathbb{E}_X \left[ \mu (X)(x) \right] - \mathbb{E}\left[ y | x \right] \right) }^2 \right] = 
+        \mathbb{E}_x \left[ {\left( \frac{f_x}{K} - f_x \right)}^2 \right] = \\
+        = {\left( \frac{K - 1}{K} \right)}^2 \mathbb{E}_x \left[ f_x^2 \right] =
+        {\left( \frac{K - 1}{K} \right)}^2 \sum_{x = 1}^K \frac{f_x^2}{K} = \frac{{(K - 1)}^2}{K^3} \sum_{x = 1}^K f_x^2
+    \end{gather*}
+
+    \item
+    \begin{enumerate}
+        \item Заметим, что какие бы два веса мы не взяли, их сумма будет больше третьего, таким образом, для верной классификации
+        необходимо и достаточно, чтобы хотя бы какие-то два алгоритма выдали правильный результат. Пусть $ \xi \sim Bin(3, 1 - p) $ - число
+        алгоритмов, получивших верный ответ. Тогда вероятность ошибки композиции:
+
+        \begin{gather*}
+            p_0 = \mathbb{P} (\xi \le 1) = p^3 + 3 p^2 (1 - p) = p^2 (3 - 2p)
+        \end{gather*}
+
+        \item Тут все куда проще: поскольку $ w_2 > w_1 + w_3 $, то ответ композиции тождественно равен ответу второго алгоритма. Поэтому
+        вероятность ошибки равна вероятности ошибки второго алгоритма:
+
+        \begin{equation*}
+            p_0 = p
+        \end{equation*}
+    \end{enumerate}
+\end{enumerate}
+
+\end{document}
