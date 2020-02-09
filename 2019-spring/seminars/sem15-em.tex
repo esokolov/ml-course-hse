@@ -1,0 +1,374 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{../lecture-notes/vkCourseML}
+\title{Машинное обучение, ФКН ВШЭ\\Семинар №15}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\section{EM-алгоритм}
+Напомним некоторые выражения, которые были рассмотрены на лекции.
+
+Дивергенцией Кульбака-Лейблера называется функционал:
+\begin{equation}
+\text{KL}(p\Vert q) = \int p(x)\log \frac{p(x)}{q(x)} dx.
+\end{equation}
+
+Данный функционал имеет смысл <<расстояния>> между распределениями и обладает следующими свойствами:
+\begin{itemize}
+	\item $\text{KL}(p\Vert q) \geq 0, \; \forall p, \,q;$
+	\item $\text{KL}(p\Vert q) = 0  \iff p=q.$
+\end{itemize}
+
+\textbf{EM-алгоритм} "--- итерационный метод максимизации правдоподобия выборки. Пусть есть следующая задача:
+\begin{equation} \label{eq:LL_max}
+	\log p(X\vert \Theta) \rightarrow \max_{\Theta}
+\end{equation}
+Пусть в модели существуют скрытые переменные $Z$, описывающее её внутреннее состояние. Для некоторого распределения $q(Z)$ на скрытых переменных верно:
+\begin{align*}
+	\log p(X\vert \Theta) = &\int q(Z) \log p(X\vert \Theta) dZ =\\
+	 &\int q(Z) \log \frac{p(X,Z\vert \Theta)}{p(Z\vert X, \Theta)} dZ =  \int q(Z) \log \frac{p(X,Z\vert \Theta)q(Z)}{p(Z\vert X, \Theta)q(Z)} dZ = \\
+	&\int q(Z)\log \frac{p(X,Z\vert \Theta)}{q(Z)} dZ +\int q(Z) \log \frac{q(Z)}{p(Z\vert X, \Theta)} dZ =\\ & \mathcal{L}(q,\Theta) + \text{KL}(q\Vert p).
+\end{align*}
+
+Так как $\text{KL}(q\Vert p) \geq 0$, то $\log p(X\vert \Theta) \geq \mathcal{L}(q,\Theta)$.
+
+Напомним, что мы хотели бы максимизировать левую часть получившегося неравенства, не зависящую от распределения $q$, которое, в свою очередь, может быть выбрано произвольно, поэтому чем <<правильнее>> будет выбрано $q$, тем точнее будет полученная нижняя оценка в правой части неравенства. Вместо решения исходной задачи~\ref{eq:LL_max} будем максимизировать нижнюю оценку $\mathcal{L}(q,\Theta)$ поочерёдно по $q$ и по $\Theta$.
+\newpage
+\textbf{E-step.} Максимизируем по $q$.
+
+Из полученного ранее следует, что максимум $\mathcal{L}(q, \Theta)$ по $q$ достигается в том случае, когда достигается минимум $\text{KL}(q \Vert p),$ то есть когда $q = p$:
+\begin{equation*}
+	q^*(Z) = \argmax_{q} \mathcal{L}(q,\Theta^{\text{old}}) = \argmin_{q} \int q(Z) \log \frac{q(Z)}{p(Z\vert X, \Theta^{\text{old}})} dZ = p(Z\vert X, \Theta^{\text{old}})
+\end{equation*}
+
+\textbf{M-step.} Максимизируем по $\Theta$.
+
+\begin{align*}
+	\Theta^{\text{new}} &= \argmax_{\Theta} \int q^*(Z)\log \frac{p(X,Z\vert \Theta)}{q^*(Z)} dZ = \argmax_{\Theta} \int q^*(Z)\log p(X,Z\vert \Theta) dZ \\ 
+	&= \argmax_{\Theta} \mathbb{E}_{Z \sim q^*(Z)} \log p(X,Z\vert \Theta)
+\end{align*}
+
+\begin{vkProblem}
+	Зачем необходимо приводить исходную оптимизационную задачу \ref{eq:LL_max} к оптимизационной задаче на M-шаге?
+\end{vkProblem}
+
+\begin{esSolution}
+	Оптимизируемая функция в задаче
+	
+	\begin{equation}
+		\log p(X\vert \Theta) \rightarrow \max_{\Theta}
+	\end{equation}
+	
+	часто оказывается невыпуклой. За счёт того, что скрытые переменные $Z$ мы можем ввести произвольным образом, мы можем подобрать их так, чтобы задача
+	\begin{equation*}
+		\Theta^* = \argmax_{\Theta} \mathbb{E}_{Z} \log p(X,Z\vert \Theta)
+	\end{equation*}
+	
+	имела удобный для оптимизации вид, например, чтобы распределение $p(X,Z\vert \Theta)$ находилось в классе экспоненциальных распределений.
+\end{esSolution}
+
+\begin{vkProblem}
+    Почему EM-алгоритм необходимо сходится к локальному максимуму неполного правдоподобия $p(X\vert\Theta)$?
+\end{vkProblem}
+\begin{esSolution}
+    Рассмотрим очередную итерацию EM-алгоритма из начального приближения $\Theta^{\text{old}}$. Вспомним разложение логарифма неполного правдоподобия на KL-дивиргенцию и нижнюю оценку для некоторого $q$:
+    
+    \begin{equation*}
+        \log p(X|\Theta^{\text{old}}) = \mathcal{L}(q, \Theta^{\text{old}}) + \text{KL}(q(Z) \Vert p(Z|X, \Theta^{\text{old}}))
+    \end{equation*}
+    
+    На E-шаге мы выбираем $q^*(Z)$ равное апостериорному распределению на скрытые переменные $Z$ при условии наблюдаемых и текущих параметрах модели $p(Z|X, \Theta^{\text{old}})$, зануляя таким образом KL-дивиргенцию, то есть:
+    
+    \begin{equation*}
+        \log p(X|\Theta^{\text{old}}) = \mathcal{L}(q^*(Z), \Theta^{\text{old}})
+    \end{equation*}
+    
+    На M-шаге мы оптимизируем левую часть равенства по параметрам $\Theta$ при фиксированом $q^*(Z)$, то есть $\mathcal{L}(q^*(Z), \Theta^{\text{new}}) > \mathcal{L}(q^*(Z), \Theta^{\text{old}})$ (при условии что $\Theta^{\text{old}}$ уже не точка оптимума), тогда справедлива следующая цепочка неравенств:
+    
+    \begin{equation*}
+        \log p(X|\Theta^{\text{new}}) = \mathcal{L}(q^*, \Theta^{\text{new}}) + \text{KL}(q^*(Z) \Vert p(Z|X, \Theta^{\text{new}}))
+        > \mathcal{L}(q^*, \Theta^{\text{old}})
+        = \log p(X|\Theta^{\text{old}})
+    \end{equation*}
+    
+    Таким образом, на каждой итерации EM-алгоритма мы увеличиваем значение неполного правдоподобия $p(X\vert\Theta)$.
+    
+\end{esSolution}
+
+\section{Разделение смеси нормальных распределений}
+
+Рассмотрим смесь нормальных распределений. В таком случае плотность вероятности нашей выборки описывается следующим образом:
+
+\begin{equation*}
+	p(X\cond \Theta) = \prod_{i=1}^\ell p(x_i\cond \Theta) = \prod_{i=1}^\ell \sum_{k=1}^K \pi_k \NN(x_i \cond \mu_k, \Sigma_k),
+\end{equation*}
+
+где $i$ – индекс объекта выборки, $k$ – индекс компоненты смеси, $\pi_1, \ldots \pi_K$ – априорные вероятности компонент.
+
+Введём скрытые переменные $Z$. Переменная $z_{ik}$ имеет смысл принадлежности объекта компоненте смеси: принимает значение $1$, если $i$-ый объект обучающей выборки принадлежит $k$-ой компоненте смеси, и $0$ иначе.
+
+\begin{equation*}
+p(X, Z \cond \Theta) = \prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k \NN(x_i \cond \mu_k, \Sigma_k) \Bigr]^{z_{ik}}
+\end{equation*}
+
+На E-шаге вычисляется апостериорное распределение на скрытых переменных:
+
+% \begin{equation*}
+% 	p(Z\cond X,\Theta^{\text{old}}) = \frac{p(X, Z\cond \Theta^{\text{old}})}{p(X\cond \Theta^{\text{old}})} = \frac{\prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}}) \Bigr]^{z_{ik}}}{\sum_Z \prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}}) \Bigr]^{z_{ik}}}
+% \end{equation*}
+
+\begin{equation*}
+	p(Z\cond X,\Theta^{\text{old}}) \propto p(X, Z\cond \Theta^{\text{old}}) = \prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}}) \Bigr]^{z_{ik}}
+\end{equation*}
+
+
+Заметим, что данное распределение факторизуется в произведение распределений, соответствующих отдельным объектам~$p(z_i \cond x_i, \Theta^{\text{old}})$:
+\begin{equation*}
+p(Z \cond X, \Theta^{\text{old}}) = \prod_{i = 1}^{\ell}p(z_i \cond x_i, \Theta^{\text{old}}) = \prod_{i = 1}^{\ell} \frac{\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}}) \Bigr]^{z_{ik}}}{\sum_{k=1}^K \pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}})}
+\end{equation*}
+
+Введём обозначение:
+
+\begin{align*}
+g_{ik} \equiv p(z_{ik} = 1 \cond x_i, \Theta^{\text{old}}) = \frac{\pi_k^{\text{old}} \NN(x_i \cond \mu_k^{\text{old}}, \Sigma_k^{\text{old}})}{\sum_{s = 1}^{K}\pi_s^{\text{old}} \NN(x_i \cond \mu_s^{\text{old}}, \Sigma_s^{\text{old}})}.
+\end{align*}
+
+Вычислим теперь матожидание полного правдоподобия:
+\begin{align*}
+	\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \log p(X, Z \cond \Theta) = \phantom{\hspace{5cm}}\\
+= \mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} z_{ik}
+    \Bigl\{
+        \log \pi_k
+        +
+        \log \NN(x_i \cond \mu_k, \Sigma_k)
+    \Bigr\}
+=\\
+=
+\sum_{i = 1}^{\ell}
+\sum_{k = 1}^{K}
+    \mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})}
+        [z_{ik}]
+    \Bigl\{
+        \log \pi_k
+        +
+        \log \NN(x_i \cond \mu_k, \Sigma_k)
+    \Bigr\}.
+\end{align*}
+
+Нам понадобится вспомогательная величина:
+\begin{align*}
+\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})}[z_{ik}] &= 1 * p(z_{ik} = 1 \cond x_i, \Theta^{\text{old}}) + 0 * p(z_{ik} = 0 \cond x_i, \Theta^{\text{old}}) = g_{ik}.
+\end{align*}
+Получаем следующую оптимизационную задачу:
+\[
+\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \log p(X, Z \cond \Theta)   =
+\sum_{i = 1}^{\ell}
+\sum_{k = 1}^{K}
+    g_{ik}
+    \Bigl\{
+        \log \pi_k
+        +
+        \log \NN(x_i \cond \mu_k, \Sigma_k)
+    \Bigr\} \to \max_{\{\pi_k, \mu_k, \Sigma_k\}}
+\]
+
+\begin{itemize}
+    \item [$\mathbf{\pi_k}$:] На параметры $\pi_k$ есть ограничение $\sum_k \pi_k = 1$, поэтому воспользуемся методом множиетелей Лагранжа:
+    \begin{equation*}
+        \mathcal{F}(\pi, \lambda) = \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} g_{ik} \log \pi_k + \lambda \left(\sum_{k=1}^K \pi_k - 1\right)
+    \end{equation*}
+    \begin{equation*}
+        \nabla_{\pi_k} \mathcal{F} = \sum_i g_{ik} \dfrac{1}{\pi_k} + \lambda \Rightarrow \pi_k = \dfrac{1}{\lambda} \sum_i g_{ik}, ~~~ \lambda = \ell
+    \end{equation*}
+    \begin{equation*}
+        \pi_k = \dfrac{1}{\ell} \sum_i g_{ik}
+    \end{equation*}
+    
+    \item [$\mathbf{\mu_k}$:] 
+    \begin{equation*}
+        \mathcal{L}(q^*, \Theta) \propto_{\mu_k} \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} g_{ik} \left[ -\dfrac{1}{2}(x_i - \mu_k)^T \Sigma^{-1}_k (x_i - \mu_k) \right]
+    \end{equation*}
+    
+    \begin{equation*}
+        \nabla_{\mu_k} \mathcal{L} = \sum_{i = 1}^{\ell} g_{ik} \Sigma_k^{-1} (x_i - \mu_k) = \Sigma_k^{-1} \sum_{i = 1}^{\ell} g_{ik} (x_i - \mu_k) = 0 \Rightarrow \sum_{i = 1}^{\ell} g_{ik} (x_i - \mu_k) = \Sigma_{k} 0 = 0
+    \end{equation*}
+    
+    \begin{equation*}
+        \mu_k = \dfrac{1}{\ell \pi_k} \sum_{i = 1}^{\ell} g_{ik} x_i, ~~~ \ell \pi_k = \sum_{i=1}^{\ell} g_{ik}
+    \end{equation*}
+    
+    \item[$\mathbf{\Sigma_k}$:] Обозначим $\Lambda_k = \Sigma_k$, тогда:
+    
+    \begin{equation*}
+    \mathcal{L}(q^*, \Theta) \propto_{\Lambda_k} \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} g_{ik} \left[ -\dfrac{1}{2}(x_i - \mu_k)^T \Lambda_k (x_i - \mu_k) + \dfrac{1}{2} \log \text{det} \Lambda_k \right]
+    \end{equation*}
+
+    \begin{equation*}
+        \nabla_{\Lambda_k} \mathcal{L} = \sum_{i = 1}^{\ell} g_{ik} \left[- \dfrac{1}{2} (x_i - \mu_k) (x_i - \mu_k)^T + \dfrac{1}{2} \Lambda^{-1} \right] = 0
+    \end{equation*}
+    
+    \begin{equation*}
+        \Sigma_k = \Lambda^{-1}_k = \dfrac{1}{\ell \pi_k} \sum_{i = 1}^{\ell} g_{ik} (x_i - \mu_k) (x_i - \mu_k)^T
+    \end{equation*}
+
+\end{itemize}
+
+% Дифференцируя данный функционал, нетрудно получить формулы M-шага:
+% \begin{align*}
+% &\pi_k^{\text{new}} = \frac{1}{\ell} \sum_{i = 1}^{\ell}
+%     g_{ik};\\
+% &\mu_k^{\text{new}}
+% =
+% \frac{
+%     1
+% }{
+%     \ell \pi_k
+% }
+% \sum_{i = 1}^{\ell}
+%     g_{ik} x_i;\\
+% &\Sigma_k^{\text{new}}
+% =
+% \frac{
+%     1
+% }{
+%     \ell \pi_k
+% }
+% \sum_{i = 1}^{\ell}
+%     g_{ik}
+%     (x_i - \mu_k)
+%     (x_i - \mu_k)^T.
+% \end{align*}
+
+\section{Разделение смеси распределений Бернулли}
+
+Рассмотрим смесь распределений Бернулли:
+	\begin{equation*}
+	p(x \cond \mu, \pi) = \sum_{k = 1}^{K} \pi_k p(x \cond \mu_k),
+\end{equation*}
+где~$x \in \RR^d$, $\mu = \{\mu_1, \dots, \mu_K\}$, $\mu_k \in [0, 1]^d$, $\pi = \{\pi_1, \dots, \pi_K\}$, $\sum_{i = 1}^{K} \pi_k = 1$, и
+\begin{align*}
+&p(x_j \cond \mu_k) = \mu_{kj}^{x_j} (1 - \mu_{kj})^{1 - x_j},\\
+&p(x \cond \mu_k) = \prod_{j = 1}^{d}\mu_{kj}^{x_j}(1 - \mu_{kj})^{1 - x_j}.
+\end{align*}
+
+Иными словами,~$k$-я компонента смеси~--- это такое распределение на~$d$-мерных бинарных векторах, что~$j$-я координата вектора имеет распределение Бернулли с параметром~$\mu_{kj}$.
+% \newpage 
+
+Введём скрытые переменные $Z$ аналогично предыдущей задаче:
+
+
+\begin{equation*}
+p(X, Z \cond \Theta) = \prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k p(x_i \cond \mu_k) \Bigr]^{z_{ik}}
+\end{equation*}
+
+На E-шаге вычисляется апостериорное распределение на скрытых переменных:
+
+\begin{equation*}
+	p(Z\cond X,\Theta^{\text{old}}) = \frac{p(X, Z\cond \Theta^{\text{old}})}{p(X\cond \Theta^{\text{old}})} = \frac{\prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} p(x_i \cond \mu_k^{\text{old}}) \Bigr]^{z_{ik}}}{\sum_Z \prod_{i = 1}^{\ell}\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} p(x_i \cond \mu_k^{\text{old}}) \Bigr]^{z_{ik}}}
+\end{equation*}
+
+Заметим, что данное распределение факторизуется в произведение распределений, соответствующих отдельным объектам~$p(z_i \cond x_i, \Theta^{\text{old}})$:
+\begin{equation*}
+p(Z \cond X, \Theta^{\text{old}}) = \prod_{i = 1}^{\ell}p(z_i \cond x_i, \Theta^{\text{old}}) = \prod_{i = 1}^{\ell} \frac{\prod_{k = 1}^{K} \Bigl[\pi_k^{\text{old}} p(x_i \cond \mu_k^{\text{old}}) \Bigr]^{z_{ik}}}{\sum_{k=1}^K \pi_k^{\text{old}} p(x_i \cond \mu_k^{\text{old}})},
+\end{equation*}
+
+Введём обозначение:
+
+\begin{align*}
+g_{ik} \equiv p(z_{ik} = 1 \cond x_i, \Theta^{\text{old}}) = \frac{\pi_k^{\text{old}} p(x_i \cond \mu_k^{\text{old}})}{\sum_{s = 1}^{K}\pi_s^{\text{old}} p(x_i \cond \mu_s^{\text{old}})}.
+\end{align*}
+
+Вычислим теперь матожидание полного правдоподобия:
+\begin{align*}
+	\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \log p(X, Z \cond \Theta) = \phantom{\hspace{5cm}}\\
+= \mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} z_{ik}
+    \Bigl\{
+        \log \pi_k
+        +
+        \log p(x_i \cond \mu_k)
+    \Bigr\}
+=\\
+=
+\sum_{i = 1}^{\ell}
+\sum_{k = 1}^{K}
+    \mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})}
+        [z_{ik}]
+    \Bigl\{
+        \log \pi_k
+        +
+        \log p(x_i \cond \mu_k)
+    \Bigr\}.
+\end{align*}
+
+Нам понадобится вспомогательная величина:
+\begin{align*}
+\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})}[z_{ik}] &= 1 * p(z_{ik} = 1 \cond x_i, \Theta^{\text{old}}) + 0 * p(z_{ik} = 0 \cond x_i, \Theta^{\text{old}}) = g_{ik}.
+\end{align*}
+
+Получаем следующую оптимизационную задачу:
+\begin{align*}
+\mathbb{E}_{Z \sim p(Z \cond X, \Theta^{\text{old}})} \log p(X, Z \cond \Theta)   =
+\sum_{i = 1}^{\ell} \sum_{k = 1}^{K} g_{ik} \Bigl\{ \log \pi_k + \log p(x_i \cond \mu_k)\Bigr\} =\\
+= \sum_{i = 1}^{\ell} \sum_{k = 1}^{K} g_{ik} \Bigl\{ \log \pi_k + \sum_{j=1}^d (x_{ij}\log \mu_{kj} + (1-x_{ij})\log (1-\mu_{kj})) \Bigr\} \to \max_{\{\pi_k, \, \mu_k\}}
+\end{align*}
+
+Дифференцируя данный функционал, можем получить формулы M-шага:
+\begin{align*}
+	&\pi_k^{\text{new}} = \frac{1}{\ell} \sum_{i = 1}^{\ell}g_{ik};\\
+	&\mu_{kj}^{\text{new}} = \frac{\sum_i g_{ik}x_{ij} + \sum_i g_{ik}(x_{ij}-1)}{\sum_i g_{ik}x_{ij}}.
+\end{align*}
+
+\section{Восстановление разметки с помощью EM-алгоритма}
+\par В настоящее время все более популярны модели, требующие большого количества размеченных данных (например, нейронные сети).
+Однако разметка большой выборки для новой задачи является дорогостоящей процедурой.
+Сейчас существуют сервисы, где исполнители за небольшую плату могут размечать данные заказчика (например, отвечать, улыбается ли человек на приведенном изображении). Примерами таких сервисов являются Amazon Mechanical Turk и Яндекс.Толока.
+
+\par Эксперты, размечающие данные, не заинтересованы в качественной разметке или не обладают достаточной компетенцией, поэтому результирующие данные получаются зашумленными, что может сильно сказаться на качестве итогового алгоритма.
+Основным способом борьбы с данным эффектом является усреднение ответов по нескольким экспертам, то есть простое голосование.
+У данного способа есть очевидные проблемы: он не учитывает (1) компетенцию каждого эксперта и (2) сложность решаемой задачи.
+
+Рассмотрим датасет из $\ell$ изображений задачи бинарной классификации, для которого собраны ответы экспертов $l_{ij} \in \{0, 1\},$ где $l_{ij}$ "--- разметка $i$-го изображения $j$-ым экспертом (наблюдаемые переменные), а также известны истинные метки изображений $z_i \in \{0, 1\}$, то есть скрытые переменные, которые мы хотим восстановить.
+Совместное распределение зададим следующим образом:
+
+\begin{align*}
+p(z_{i}, l_{ij} | \alpha_j, \beta_i) &= p(z_i) p(l_{ij} | z_{i}, \alpha_j, \beta_i) \\
+p(l_{ij} = z_{i}| z_{i}, \alpha_j, \beta_i) &= \dfrac{1}{1 + \exp(-\alpha_j\beta_i)},
+\end{align*}
+
+где $\alpha_j \in (-\infty; +\infty)$ --- уровень экспертизы $i$-го эксперта, $\beta_i \in (0, +\infty)$ и $1/\beta_i$ --- сложность $i$-ой задачи.
+Оптимальные параметры $\alpha$ и $\beta$ а также распределение истинной разметки $z_{j}$ могут быть найдены с помощью EM-алгоритма:
+
+\begin{itemize}
+    \item[\textbf{E-шаг}] 
+    \begin{align*}
+        q^*(z_i) = p(z_i \vert l, \alpha, \beta) &= p(z_i \vert l_i, \alpha, \beta_i)
+        % &\propto p(l_{j} \vert z_j, \alpha, \beta_j) p(z_j)\\
+        % &\propto p(z_j) \prod_i p(l_{ij} \vert z_j, \alpha_i, \beta_j),
+        = \dfrac{p(z_i) \prod_i p(l_{ij} \vert z_i, \alpha_j, \beta_i)}{\sum_{z \in \{0, 1\}} p(z) \prod_i p(l_{ij} \vert z, \alpha_j, \beta_i)}
+    \end{align*}
+    где $l_i$ --- разметка всех экспертов, которые размечали задачу $i$. 
+    % В случае, если $z_j$ --- дискретны переменные, то данное распределение может быть рассчитано аналитически.
+    
+    \item[\textbf{M-шаг}]
+    \begin{equation*}
+        \mathbb{E}_{q^*(z)} \log p(z, l \vert \alpha, \beta) \to \max_{\alpha, \beta}
+    \end{equation*}
+    Также можно оптимизировать по априорному распределению на метки $p(z_j)$ или положить его равному равномерному.
+    \begin{align*}
+        \mathbb{E}_{q^*(z)} \log p(z, l \vert \alpha, \beta) &= \sum_i \left( \mathbb{E}_{q^*} \log p(z_i) + \sum_j \mathbb{E}_{q^*} \log p(l_{ij} \vert z_{i}, \alpha_j, \beta_i)\right)
+    \end{align*}
+    Данное выражение можно оптимизировать по параметрам $\alpha, \beta$, например, с помощью методом градиентного подъема.
+\end{itemize}
+
+
+\section{Кластеризация при помощи EM-алгоритма}
+\par Несмотря на то, что выше были рассмотрены примеры применения EM-алгоритма лишь в задаче разделения смесей распределений, он может быть применен к любой модели, в которой можно ввести скрытые переменные таким образом, что решения задач обоих шагов алгоритма могут быть получены в явном виде. Тем не менее, как говорилось на лекции, модель смеси распределений позволяет рассматривать EM-алгоритм также в качестве модели \textit{мягкой кластеризации}, предполагающей, что каждая компонента смеси является кластером со своим набором параметров (\href{https://github.com/RobRomijnders/EM}{визуализация} применения ЕМ-алгоритма для разделения смеси гауссиан).
+
+
+\begin{thebibliography}{1}
+\bibitem{boyd04convex}
+    \emph{Whitehill, Jacob et al.}
+    Whose vote should count more: Optimal integration of labels from labelers of unknown expertise.~// Advances in neural information processing systems, 2009.
+\end{thebibliography}
+
+\end{document}
