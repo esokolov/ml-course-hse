@@ -1,0 +1,56 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{../lecture-notes/vkCourseML}
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+
+\title{Машинное обучение, ФКН ВШЭ\\Теоретическое домашнее задание №5}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{esProblem}
+    Рассмотрим двойственное представление задачи гребневой регрессии:
+    \[
+        Q(a)
+        =
+        \frac{1}{2} \| K a - y \|^2 + \frac{\lambda}{2} a^T K a \to \min_a.
+    \]
+    Покажите, что решение этой задачи записывается как
+    \[
+        a = (K + \lambda I)^{-1} y.
+    \]
+\end{esProblem}
+
+\begin{esProblem}
+    Покажите, что функция
+    \[
+        K(x, z) = \cos(x - z)
+    \]
+    для~$x, z \in \RR$ является ядром.
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим функцию, равную косинусу угла между двумя векторами~$x, z \in \RR^d$:
+    \[
+        K(x, z) = \cos(\widehat{x, z}).
+    \]
+    Покажите, что она является ядром.
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим ядра~$K_1(x, z) = (xz + 1)^2$ и~$K_2(x, z) = (xz - 1)^2$,
+    заданные для~$x, z \in \RR$.
+    Найдите спрямляющие пространства для~$K_1$, $K_2$ и~$K_1 + K_2$.
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим следующую функцию на пространстве вещественных чисел:
+    \[
+        K(x, z) = \frac{1}{1 + e^{-xz}}.
+    \]
+    Покажите, что она не является ядром.
+\end{esProblem}
+
+\end{document} 
