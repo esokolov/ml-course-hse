@@ -58,8 +58,8 @@ def get_token_to_index(sentence_pairs: List[SentencePair], freq_cutoff=None) -> 
         freq_cutoff: if not None, keep only freq_cutoff most frequent tokens in each language
 
     Returns:
-        source_dict: mapping of token to a unique number for source language
-        target_dict: mapping of token to a unique number for target language
+        source_dict: mapping of token to a unique number (from 0 to vocabulary size) for source language
+        target_dict: mapping of token to a unique number (from 0 to vocabulary size) target language
 
     """
     pass
