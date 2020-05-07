@@ -1,0 +1,78 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{../lecture-notes/vkCourseML}
+
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+
+\title{Машинное обучение, ФКН ВШЭ\\Теоретическое домашнее задание №7}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{esProblem}
+    Покажите, что параметр $\nu$, используемый в постановке задачи одноклассового SVM,
+    является верхней оценкой на долю аномалий на обучающей выборке, т.е. что
+    $\frac{1}{\ell} \sum_{i=1}^\ell [\langle w, x_i \rangle < \rho] \leq \nu$, где $w$~--- оптимальный вектор весов.
+\end{esProblem}
+
+\begin{esProblem}
+    В факторизационных машинах предсказание для объекта~$x \in \RR^{d}$ делается по формуле
+    \[
+        a(x)
+        =
+        w_0
+        +
+        \sum_{j = 1}^{d}
+            w_j x_j
+        +
+        \sum_{j = 1}^{d} \sum_{k = j + 1}^{d}
+            x_j x_k
+            \langle v_j, v_k \rangle,
+    \]
+    где $w_j \in \RR, v_j \in \RR^r, j = \overline{0, d}$.
+    Вычисление предсказания по этой формуле требует~$O(rd^2)$ операций. Покажите, что это же предсказание может быть сделано за~$O(rd)$ операций.
+\end{esProblem}
+
+\begin{esProblem}
+    Допустим, мы решили задать правдоподобие выборки через нормальное распределение для размеченных объектов
+    и через смесь гауссиан для неразмеченных:
+    \begin{align*}
+        \sum_{i = 1}^{\ell}
+            \log \pi_{y_i} &p(x_i \cond y_i, \theta)\\
+        &+
+        \sum_{i = \ell + 1}^{\ell + k}
+        \log \sum_{y \in \YY}
+            \pi_y p(x_i \cond y, \theta)
+        \to
+        \max_\theta,
+    \end{align*}
+    где~$p(x \cond y, \theta) = \NN(x \cond \mu_y, \Sigma_y)$.
+    Введите скрытые переменные и запишите формулы для E- и M-шагов EM-алгоритма.
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим нормированный лапласиан~--- разновидность лапласиана, часто возникающую в литературе:
+    \[
+        L_n
+        =
+        I - D^{-1/2} W D^{-1/2}.
+    \]
+    Покажите, что для любого вектора~$f \in \RR^\ell$ выполнено
+    \[
+        f^T L_n f
+        =
+        \frac12
+        \sum_{i = 1}^{\ell}
+            w_{ij}
+            \left(
+                \frac{f_i}{\sqrt{d_i}}
+                -
+                \frac{f_j}{\sqrt{d_j}}
+            \right)^2.
+    \]
+\end{esProblem}
+
+
+\end{document} 
