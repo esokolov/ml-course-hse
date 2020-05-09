@@ -1,0 +1,193 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{../lecture-notes/vkCourseML}
+\usepackage{lipsum}
+\usepackage{indentfirst}
+\title{Машинное обучение, ФКН ВШЭ\\Семинар №18}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Лапласиан графа}
+
+Пусть задан некоторый взвешенный неориентированный граф $G = (V,E)$, где $V = \{v_1, \ldots v_n\}$ – множество вершин. Мы также будем обозначать вершину $v_i$ индексом $i$. Матрицу смежности обозначим $W = (w_{ij})_{i,j=1,\ldots,n}$. Степенью вершины $v_i$ назовём
+\begin{equation*}
+	d_{i} = \sum_{j=1}^nw_{ij}
+\end{equation*}
+Также введём матрицу $D$ как диагональную матрицу с элементами $D_{ii} = d_i$.
+
+Ненормированным Лапласианом графа называется матрица
+\begin{equation*}
+	L = D - W
+\end{equation*}
+
+Лапласиан графа обладает следующими свойствами:
+\begin{enumerate}
+	\item Для произвольного вектора $f \in \mathbb{R}^n$
+		\begin{equation*}
+			f^T L f = \frac{1}{2} \sum_{i,j}w_{ij}(f_i -f _j)^2
+		\end{equation*}
+		
+		Докажем это.
+		
+		\begin{equation*}
+			f^T L f = f^T D f - f^T W f = \sum_{i=1}^n d_i f_i^2 - \sum_{i,j} f_i f_j w_{ij} =
+		\end{equation*}
+		\begin{equation*}
+			= \frac{1}{2} \bigg( \sum_{i=1}^n d_i f_i^2 - 2\sum_{i,j} f_i f_j w_{ij} + \sum_{j=1}^n d_j f_j^2 \bigg) =
+			\frac{1}{2} \bigg( \sum_{i=1}^n \sum_{j=1}^n w_{ij} f_i^2 - 2\sum_{i,j} f_i f_j w_{ij} + \sum_{j=1}^n \sum_{i=1}^n w_{ij} f_j^2 \bigg) = 
+		\end{equation*}
+		\begin{equation*}
+			= \frac{1}{2} \sum_{i,j}w_{ij}(f_i -f _j)^2
+		\end{equation*}
+	\item $L$ – симметричная, положительно полуопределённая матрица.
+	
+		Симметричность следует из того, что граф неориентированный. Положительная полуопределённость следует из того, что все веса неотрицательные\\ 
+		$w_{ij} \geq 0 \; \forall i,j$, а также из предыдущего пункта:
+		\begin{equation*}
+			\forall f \in \mathbb{R}^n \; f^T L f \geq 0.
+		\end{equation*}
+	\item Наименьшее собственное значение равно $0$ и соответствует вектору $\mathbf{1} = (1,\ldots,1)^T$.
+\end{enumerate}
+
+\section{Graph-cut подход}
+
+Пусть мы задали на нашем множестве точек взвешенный неориентированный граф, где вес ребра $w_{ij}$ означает степень сходства объектов $v_i,v_j$ (чем больше $w_{ij}$, тем больше похожи объекты $v_i,v_j$). Введём обозначения: $W(A,B) = \sum_{i\in A, j \in B} w_{ij}$, $\overline{A}$ – дополнение множества $A$. Тогда логично решать задачу кластеризации выборки на $k$ непересекающихся кластеров $A_1, \ldots, A_k$, минимизируя функционал
+
+\begin{equation}
+	\text{cut}(A_1, \ldots, A_k) = \frac{1}{2}\sum_{i=1}^k W(A_i, \overline{A_i}).
+	\label{cut_obj}
+\end{equation}
+
+На практике минимизация функционала \ref{cut_obj} зачастую приводит к тому, что в кластера выделяются отдельные объекты, что является нежелательным. Поэтому данный функционал нормируют следующим образом:
+\begin{equation}
+	\text{RatioCut}(A_1, \ldots, A_k) = \frac{1}{2}\sum_{i=1}^k \frac{W(A_i, \overline{A_i})}{|A_i|},
+	\label{ratiocut_obj}
+\end{equation}
+где $|A|$ – количество вершин во множестве $A$.
+
+
+Рассмотрим оптимизационную задачу для случая, когда $k=2$:
+\begin{equation*}
+	\min_{A \subset V} \text{RatioCut}(A, \overline{A}).
+\end{equation*}
+
+Переформулируем её через Лапласиан. Для этого введём вектор $f = (f_1, \ldots, f_n)^T$.
+\begin{equation*}
+	f_i = 
+	\begin{cases}
+		\sqrt{|\overline{A}|/|A|}, v_i \in A \\
+		-\sqrt{|A|/|\overline{A}|}, v_i \in \overline{A}
+	\end{cases}
+\end{equation*}
+
+И запишем
+\begin{align*}
+	f^T L f & = \frac{1}{2} \sum_{i,j}w_{ij}(f_i -f _j)^2\\
+	& = \frac{1}{2} \sum_{i\in A, j\in \overline{A}}w_{ij}\bigg(\sqrt{\frac{|\overline{A}|}{|A|}} + \sqrt{\frac{|A|}{|\overline{A}|}}\bigg)^2 
+	+ \frac{1}{2} \sum_{i\in \overline{A}, j\in A}w_{ij}\bigg(-\sqrt{\frac{|A|}{|\overline{A}|}} - \sqrt{\frac{|\overline{A}|}{|A|}}\bigg)^2 \\
+	& = \frac{1}{2}\bigg(\sqrt{\frac{|\overline{A}|}{|A|}} + \sqrt{\frac{|A|}{|\overline{A}|}}\bigg)^2 (W(A, \overline{A}) + W(\overline{A}, A))\\
+	& = \frac{1}{2}\bigg(\frac{|\overline{A}|}{|A|} + 2 + \frac{|A|}{|\overline{A}|}\bigg) (W(A, \overline{A}) + W(\overline{A}, A))\\
+	& = \frac{1}{2} \bigg(\frac{|\overline{A}| + |A|}{|A|} + \frac{|A| + |\overline{A}|}{|\overline{A}|}\bigg) (W(A, \overline{A}) + W(\overline{A}, A))\\
+	& = n\text{RatioCut}(A, \overline{A})
+\end{align*}
+
+Также заметим, что  
+\begin{equation*}
+	\sum_{i=1}^n f_i = |A|\sqrt{\frac{|\overline{A}|}{|A|}} - |\overline{A}|\sqrt{\frac{|A|}{|\overline{A}|}} = 0.
+\end{equation*}
+
+И 
+\begin{equation*}
+	\sum_{i=1}^n f_i^2 = |A|\frac{|\overline{A}|}{|A|} + |\overline{A}|\frac{|A|}{|\overline{A}|} = n.
+\end{equation*}
+
+Таким образом мы свели задачу минимизации функционала \ref{ratiocut_obj} к следующей задаче оптимизации:
+\begin{align*}
+	& f^T L f \rightarrow \min_f \; ,\\
+	& \langle f, \mathbf{1} \rangle = 0 \; ,\\
+	& \Vert f \Vert = \sqrt{n} \;.
+\end{align*}
+
+При этом $f$ обязан принимать дискретные значения, согласно тому, как мы вводили этот вектор. Решать дискретную задачу оптимизации сложно, поэтому будем решать полученную задачу приближённо.
+
+\begin{equation*}
+	\mathcal{L} = f^T L f + \lambda_1 f^T \mathbf{1} + \lambda_2 (\Vert f \Vert - \sqrt{n})
+\end{equation*}
+
+Запишем условие минимума.
+
+\begin{equation*}
+	\nabla_f \mathcal{L} = 2Lf + \lambda_1 \mathbf{1} + \lambda_2 \frac{1}{\Vert f \Vert} f = \mathbf{0}
+\end{equation*}
+
+Домножим это уравнение слева на $\mathbf{1}^T$, тогда, пользуясь ограничениями получим
+
+\begin{equation*}
+	2\mathbf{1}^T Lf + \lambda_1 n = 0
+\end{equation*}
+\begin{equation*}
+	\lambda_1 = \lambda_1^T = -\frac{2}{n} f^T L \mathbf{1} = 0
+\end{equation*}
+
+В последней строчке мы воспользовались тем, что матрица $L$ симметричная, а также, что $\mathbf{1}$ – собственный вектор матрицы $L$ с собственным значением $0$. В таком случае, условие минимума переписывается следующим образом:
+
+\begin{equation*}
+	2Lf + \lambda_2 \frac{1}{\Vert f \Vert} f = \mathbf{0}.
+\end{equation*}
+
+Учитывая, что $\Vert f \Vert = \sqrt{n}$, получаем, что $f$ - собственный вектор матрицы $L$ с собственным значением $æ = (-\lambda_2)/(2\sqrt{n})$. Тогда минимизируемый функционал можно переписать как $f^T L f = æ \Vert f \Vert^2 = æ n$. Таким образом, минимум достигается на собственном векторе со вторым минимальным собственным значением $æ$ (минимальное собственное значение равно $0$ и достигается на собственном векторе $\mathbf{1}$).
+
+Кластеризацию точек можно получить из полученого решения, с помощью решающего правила
+\begin{equation*}
+	\begin{cases}
+	v_i \in A, \text{ если } f_i \geq 0\\
+	v_i \in \overline{A}, \text{ если } f_i < 0
+	\end{cases}
+\end{equation*}
+
+Но, вместо решающего правила, найденные собственные вектора используют как признаки в новом пространстве, в котором можно провести кластеризацию простым метрическим методом, например, k-means. Таким образом, мы получаем следующий алгоритм:
+
+\newpage
+\textbf{Дано:} матрица смежности $W$, необходимое число кластеров $k$.
+\begin{enumerate}
+	\item Считаем Лапласиан графа $L = D - W$.
+	\item Находим собственные векторы Лапласиана $u_1, \ldots, u_n$.
+	\item Выбираем $k$ собственных векторов с наименьшими $k$ собственными значениями. Записываем матрицу $U = (u_1, \ldots, u_k)$, где $u_k$ – $k$-ый столбец.
+	\item $i$-ую строчку матрицы $U$ используем в качестве нового объекта $y_i$.
+	\item Кластеризуем новую выборку $\{y_1, \ldots, y_n\}$ с помощью k-means.
+\end{enumerate}
+
+Ранее мы рассмотрели оптимизационную задачу для случая, когда $k=2$. Аналогичным образом можно рассмотреть случай, когда $k$ – произвольное.
+
+Введём матрицу $H$:
+\begin{equation*}
+	H_{ij} = 
+	\begin{cases}
+		1/\sqrt{|A_j|}, \; v_i \in A_j \\
+		0, \text{ иначе }
+	\end{cases}
+\end{equation*}
+
+Рассмотрим столбец $h_k$, он соответствует множеству $A_k$. В случае, когда множества не пересекаются $H^TH = I$. Запишем
+\begin{align*}
+	h_k^T L h_k & = \frac{1}{2} \sum_{i,j}w_{ij}(H_{ik} -H_{jk})^2\\
+	& = \frac{1}{2} \sum_{i\in A_k, j\in \overline{A_k}}w_{ij} \frac{1}{|A_k|} 
+	+ \frac{1}{2} \sum_{i\in \overline{A_k}, j\in A_k}w_{ij} \frac{1}{|A_k|}  \\
+	& = \frac{W(A_k, \overline{A_k})}{|A_k|}
+\end{align*}
+
+Также мы можем записать $h_k^T L h_k = (H^T L H)_{kk}$. Тогда
+\begin{equation*}
+	\text{RatioCut}(A_1, \ldots, A_k) = \text{tr}(H^T L H)
+\end{equation*}
+
+Получаем следующую оптимизационную задачу:
+\begin{align*}
+	& \text{tr}(H^T L H) \rightarrow \min_H \; ,\\
+	& H^TH = I \; .
+\end{align*}
+
+Можно показать, что в таком случае матрица $H$ должна состоять из первых (по возрастанию собственных значений) собственных векторов матрицы $L$.
+
+\end{document}
