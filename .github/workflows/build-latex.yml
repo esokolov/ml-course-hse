@@ -1,0 +1,27 @@
+name: Build LaTeX document
+on: [push]
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v1
+      - name: Find changed tex files
+        id: find_changed
+        run: |
+          echo "::set-output name=changed_files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -i -e '\.tex$')"
+      - name: Compile tex files
+        uses: Azatik1000/latex-action@master
+        with:
+          files: ${{steps.find_changed.outputs.changed_files}}
+          args: "-pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode"
+      - name: Commit results
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Add changes"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
