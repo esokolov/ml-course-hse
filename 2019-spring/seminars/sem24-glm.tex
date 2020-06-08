@@ -25,9 +25,38 @@
     \begin{enumerate}
         \item Нормальное распределение: $p(y \cond \theta(x)) = \mathcal{N} (\theta(x), \sigma^2).$
         
-        Полагая, как было описано выше, $\theta(x) = \langle w, x \rangle$ и записывая задачу метода максимизации правдоподобия, приходим к задаче линейной регрессии для среднеквадратичной ошибки:
+        Полагая, как было описано выше, $\theta(x) = \langle w, x \rangle$, запишем задачу максимизации правдоподобия для непрерывной величины: 
+        \begin{align*}
+            \sum_{i=1}^\ell \log f(y_i \cond \theta(x_i)) =
+            \sum_{i=1}^\ell 
+            \log \left( \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(y_i-\theta(x_i))^2}{2 \sigma^2}}
+            \right)
+            = 
+            \sum_{i=1}^\ell
+            \log \frac{1}{\sigma\sqrt{2\pi}}
+            + \\
+            \sum_{i=1}^\ell
+            -\frac{(y_i-\theta(x_i))^2}{2 \sigma^2}
+            = 
+            \sum_{i=1}^\ell
+            \log \frac{1}{\sigma\sqrt{2\pi}}
+            + 
+            \sum_{i=1}^\ell
+            -\frac{(y_i-\langle w, x_i \rangle)^2}{2 \sigma^2}
+            \to \max_w
+        \end{align*}
+        
+        Мы предполагаем, что $\sigma$ - константа, поэтому эта задача эквивалентна следующей: 
+        
+        \begin{equation*}
+            \sum_{i=1}^\ell
+            -(y_i-\langle w, x_i \rangle)^2
+            \to \max_w
+        \end{equation*}
+        
+        Таким образом, приходим к задаче линейной регрессии для среднеквадратичной ошибки:
         \begin{equation}
-            \sum_{i=1}^\ell - (y_i - \langle w, x_i \rangle)^2 \to \max_w
+            \sum_{i=1}^\ell (y_i - \langle w, x_i \rangle)^2 \to \min_w
         \end{equation}
         \item Распределение Бернулли: $p(y \cond \theta(x)) = \theta(x)^{y} (1 - \theta(x))^{1 - y}$.
         
