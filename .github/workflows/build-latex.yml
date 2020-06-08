@@ -16,9 +16,9 @@ jobs:
           files: ${{steps.find_changed.outputs.changed_files}}
           args: "-pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode"
       - name: Extract branch name
-          shell: bash
-          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          id: extract_branch
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Commit results
         run: |
           git config --local user.email "action@github.com"
