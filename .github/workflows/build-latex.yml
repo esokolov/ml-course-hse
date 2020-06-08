@@ -15,13 +15,19 @@ jobs:
         with:
           files: ${{steps.find_changed.outputs.changed_files}}
           args: "-pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode"
+      - name: Extract branch name
+          shell: bash
+          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          id: extract_branch
       - name: Commit results
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git checkout ${{ steps.extract_branch.outputs.branch }}
           git add -A
           git commit -m "Add changes"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
+          branch: ${{ steps.extract_branch.outputs.branch }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
