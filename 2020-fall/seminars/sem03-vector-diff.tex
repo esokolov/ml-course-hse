@@ -1,0 +1,256 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{../lecture-notes/vkCourseML}
+\hypersetup{unicode=true}
+%\usepackage[a4paper]{geometry}
+\usepackage[hyphenbreaks]{breakurl}
+
+\interfootnotelinepenalty=10000
+
+\begin{document}
+\title{Машинное обучение\\Семинар 3\\Матрично-векторное дифференцирование}
+\author{}
+\date{}
+\maketitle
+
+Как правило, дифференцируемые модели обучаются с помощью градиентного спуска,
+а для него важно уметь считать градиент функционала ошибки по параметрам модели.
+Можно считать градиент покоординатно, а потом пристально смотреть на формулы и
+пытаться понять, как это может выглядеть в векторной форме.
+Гораздо проще считать градиент напрямую~--- а для этого поможет знание градиентов
+для основных функций и основных правил матрично-векторого дифференцирования.
+
+\section{Вывод основных формул}
+
+Введём следующие определения:
+\begin{itemize}
+    \item При отображении вектора в число $f(x): \RR^n \to \RR$ 
+    \[
+        \nabla_x f(x)
+        =
+        \bigg[
+            \frac{\partial f}{\partial x_1},
+            \dots,
+            \frac{\partial f}{\partial x_n}
+        \bigg]^T
+    \]
+
+    \item При отображении матрицы в число $f(A): \RR^{n \times m} \to \RR$
+    \[
+        \nabla_A f(A)
+        =
+        \bigg(
+            \frac{\partial f}{\partial A_{ij}}
+        \bigg)_{i,j=1}^{n,m}
+    \]
+
+\end{itemize}
+
+Мы хотим оценить, как функция изменяется по каждому из аргументов по отдельности. Поэтому производной функции по вектору будет вектор, по матрице --- матрица. Теперь поупражняемся в дифференцировании:
+
+\begin{vkProblem} Пусть $a \in \mathbb{R}^n$ --- вектор параметров, а $x \in \mathbb{R}^n$ --- вектор переменных. Необходимо найти производную их скалярного произведения по вектору переменных~$\nabla_x a^Tx$. 
+\end{vkProblem}
+
+\begin{esSolution}
+\[
+    \frac{\partial}{\partial x_i} a^Tx = \frac{\partial}{\partial x_i}\sum_j a_jx_j = a_i,
+\]поэтому $\nabla_x a^Tx = a. $
+
+    Заметим, что $a^Tx$ — это число, поэтому $a^Tx = x^Ta$, следовательно, 
+    \[\nabla_x x^Ta = a.\]
+\end{esSolution}
+
+\begin{vkProblem} Пусть теперь $A \in \mathbb{R}^{n\times n}$. Необходимо найти $\nabla_x x^TAx$.
+\end{vkProblem} 
+    
+\begin{esSolution}
+\begin{multline*}
+    \frac{\partial}{\partial x_i} x^TAx = \frac{\partial}{\partial x_i}\sum_j x_j (Ax)_j = \frac{\partial}{\partial x_i}\sum_j x_j \bigg(\sum_k a_{jk}x_k\bigg) = \frac{\partial}{\partial x_i}\sum_{j,k} a_{jk} x_j x_k = \\
+ = \sum_{j \neq i} a_{ji} x_j + \sum_{k \neq i} a_{ik} x_k + 2a_{ii}x_i = \sum_{j} a_{ji} x_j + \sum_{k} a_{ik} x_k = \sum_{j} (a_{ji} + a_{ij}) x_j.
+\end{multline*}
+    
+Поэтому $\nabla_x x^TAx = (A + A^T)x$.
+    
+\end{esSolution}
+    
+\begin{vkProblem} Пусть $A \in \mathbb{R}^{n\times n}$. Необходимо найти $\nabla_A \det A$.
+\end{vkProblem}
+    
+\begin{esSolution} Воспользуемся теоремой Лапласа о разложении определителя по строке:
+    \[\frac{\partial}{\partial A_{ij}} \det A = \frac{\partial}{\partial A_{ij}}\bigg[\sum_k (-1)^{i+k}A_{ik}M_{ik}\bigg] = (-1)^{i+j}M_{ij}, \; \]
+где $M_{ik}$ --- дополнительный минор матрицы $A$. Также вспомним формулу для элементов обратной матрицы
+    
+    \[(A^{-1})_{ij} = \frac{1}{\det A}(-1)^{i+j}M_{ji}.\]
+    
+    Подставляя выражение для дополнительного минора, получаем ответ $\nabla_A \det A = (\det A) A^{-T}$.
+\end{esSolution}
+
+\newpage 
+\begin{vkProblem} Пусть $A \in \mathbb{R}^{n \times n},\ B \in \mathbb{R}^{n \times n}$. Необходимо найти $\nabla_A \text{tr}(AB)$. 
+\end{vkProblem}
+
+\begin{esSolution}
+    
+\[
+\frac{\partial}{\partial A_{ij}} \text{tr}(AB) = \frac{\partial}{\partial A_{ij}} \sum_k (AB)_{kk} = \frac{\partial}{\partial A_{ij}} \sum_{k,l} A_{kl}B_{lk} = B_{ji}.
+\]
+\[
+\text{То есть, }\nabla_A \text{tr}(AB) = B^T.
+\]
+
+\end{esSolution}
+
+\begin{vkProblem} Пусть $x \in \mathbb{R}^n, \, A \in \mathbb{R}^{n \times m}, \, y \in \mathbb{R}^m.$ Необходимо найти $\nabla_A x^TAy$. 
+\end{vkProblem}
+
+\begin{esSolution} Воспользовавшись циклическим свойством следа матрицы (для матриц подходящего размера): 
+\[
+\text{tr}(ABC) = \text{tr}(BCA) = \text{tr}(CAB)
+\]
+    и результатом предыдущей задачи, получаем
+\[
+\nabla_A x^TAy = \nabla_A \text{tr} (x^TAy) =  \nabla_A \text{tr}(Ayx^T) = xy^T.
+\]
+    
+\end{esSolution}
+
+Наконец, научимся считать градиенты для сложных функций.
+Допустим, даны функции~$f: \RR^n \to \RR^m$ и~$g: \RR^m \to \RR$.
+Тогда градиент их композиции можно вычислить как
+\[
+    \nabla_x g \left( f(x) \right)
+    =
+    J_{f}^T (x)
+    \nabla_z \left. g(z) \right|_{z = f(x)},
+\]
+где~$J_f (x) = \left( \frac{\partial f_i(x)}{\partial x_j}  \right)_{i, j = 1}^{m, n}$~--- матрица Якоби для функции~$f$.
+Если~$m = 1$ и функция~$g(z)$ имеет всего один аргумент, то формула упрощается:
+\[
+    \nabla_x g \left( f(x) \right)
+    =
+    g'(f(x))
+    \nabla_x f(x).
+\]
+
+\begin{vkProblem}
+    Вычислите градиент логистической функции потерь для линейной модели по параметрам этой модели:
+    \[
+        \nabla_w
+        \log \left(
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        \right).
+    \]
+\end{vkProblem}
+
+\begin{esSolution}
+    \begin{align*}
+        \nabla_w
+        \log &\left(
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        \right)
+        = \\
+        &=
+        \frac{
+            1
+        }{
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        }
+        \nabla_w \left(
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        \right)
+        =\\
+        &=
+        \frac{
+            1
+        }{
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        }
+        \exp(-y \langle w, x \rangle)
+        \nabla_w \left(
+            -y \langle w, x \rangle
+        \right)
+        =\\
+        &=
+        -
+        \frac{
+            1
+        }{
+            1
+            +
+            \exp(-y \langle w, x \rangle)
+        }
+        \exp(-y \langle w, x \rangle)
+        y
+        x
+        =\\
+        &=
+        \left\{
+            \sigma(z)
+            =
+            \frac{
+                1
+            }{
+                1 + \exp(-z)
+            }
+        \right\}
+        =\\
+        &=
+        -
+        \sigma(-y \langle w, x \rangle)
+        y
+        x
+    \end{align*}
+\end{esSolution}
+
+
+\subsection{Решение задачи регрессии для многомерного случая}
+
+Вспомним, зачем мы хотели научиться дифференцировать. В общем случае мы имеем выборку $\{(x_i, y_i)\}_{i=1}^\ell$, $x_i \in \mathbb{R}^d, y_i \in \mathbb{R} \; i = \overline{1, \ell}$, и хотим найти наилучшие параметры модели $a(x) = \langle w, x \rangle$ с точки зрения минимизации функции ошибки
+
+$$Q(w) = (y - Xw)^T(y - Xw).$$
+
+Здесь $X\in \mathbb{R}^{\ell \times d}$ — матрица <<объекты-признаки>>\ для обучающей выборки, $y~\in~\mathbb{R}^\ell$ — вектор значений целевой переменной на обучающей выборке,~$w \in \mathbb{R}^d$~—~вектор параметров. Выпишем градиент функции ошибки по $w$:
+
+\begin{align*}
+\nabla_w Q(w) & = \nabla_w [y^Ty - y^TXw - w^TX^Ty + w^TX^TXw] = \\
+& = 0 - X^Ty - X^Ty + (X^TX + X^TX)w = 0.
+\end{align*}
+
+Таким образом, искомый вектор параметров выражается как
+
+\[
+w = (X^TX)^{-1}X^Ty.
+\]
+
+Заметим, что это общая формула, и нет необходимости выводить формулу для регрессии вида $a(x) = Xw + w_0$, т.к. мы всегда можем добавить признак (столбец матрицы $X$), который всегда будет равен $1$, и по уже выведенной формуле найдём параметр $w_0$.
+
+Покажем, почему найденная точка — точка минимума, если матрица $X^T X$ обратима. Из курса математического анализа мы знаем, что если матрица Гессе функции положительно определёна в точке, градиент которой равен нулю, то эта точка является локальным минимумом.
+
+\[
+\nabla^2 Q(w) = 2X^TX.
+\]
+
+Необходимо понять, является ли матрица $X^TX$ положительно определённой. Запишем определение положительной определённости матрицы  $X^TX$:
+
+\[
+z^TX^TXz > 0, \; \forall z \in \mathbb{R}^d, z \ne 0.
+\]
+
+Видим, что тут записан квадрат нормы вектора $Xz$, то есть это выражение будет не меньше нуля. В случае, если матрица $X$ имеет <<книжную>>\ ориентацию (строк не меньше, чем столбцов) и имеет полный ранг (нет линейно зависимых столбцов), то вектор $Xz$ не может быть нулевым, а значит выполняется
+
+\[
+z^TX^TXz = ||Xz||^2 > 0, \; \forall z \in \mathbb{R}^d, z \ne 0.
+\]
+
+То есть $X^TX$ является положительно определённой матрицей. Также, по критерию Сильвестра, все главные миноры (в том числе и определитель) положительно определённой матрицы положительны, а, следовательно, матрица $X^TX$ обратима, и решение существует. Если же строк оказывается меньше, чем столбцов, или $X$ не является полноранговой, то $X^TX$ необратима и решение $w$ определено неоднозначно. 
+
+\end{document}
