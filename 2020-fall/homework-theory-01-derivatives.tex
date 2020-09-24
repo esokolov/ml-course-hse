@@ -1,0 +1,64 @@
+\documentclass[12pt,fleqn]{article}
+
+\usepackage{vkCourseML}
+
+\usepackage{lipsum}
+\usepackage{indentfirst}
+\title{Машинное обучение, ФКН ВШЭ\\Матрично-вектороное дифференцирование}
+\author{}
+\date{}
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+\begin{document}
+
+\maketitle
+
+\begin{esProblem}
+    Найдите производную по матрице $A \in \mathbb{R}^{n\times n}$
+
+    \begin{equation*}
+        \frac{\partial}{\partial A} \log \det A.
+    \end{equation*}
+\end{esProblem}
+
+\begin{esProblem}
+    Найдите производную по вектору $a \in \mathbb{R}^{n}$
+
+    \begin{equation*}
+        \frac{\partial}{\partial a} \left(
+            a^T \exp(a a^T)a
+        \right),
+    \end{equation*}
+    где $\exp(B)$~--- \href{https://en.wikipedia.org/wiki/Matrix_exponential}{матричная экспонента},
+    $B \in \mathbb{R}^{n \times n}$.
+    Матричной экспонентой обозначают ряд
+    \begin{equation*}
+        I_n + \frac{B}{1!} + \frac{B^2}{2!} + \frac{B^3}{3!} + \frac{B^4}{4!} + \ldots = \sum_{k=0}^\infty \frac{B^k}{k!} .
+    \end{equation*}
+\end{esProblem}
+
+\begin{esProblem}
+    Пусть $A \in \mathbb{R}^{m \times n}, b \in \mathbb{R}^m$. Найдите производную по вектору $x \in \mathbb{R}^n$
+    \[
+    \frac{\partial}{\partial x} \sin \|Ax + b\|_2
+    \]
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим симметричную матрицу $A \in \mathbb{R}^{n \times n}$ и ее спектральное разложение $A = Q \Lambda Q^T$. Пусть $\lambda \in \mathbb{R}^n$ - это диагональ матрицы $\Lambda$ (то есть вектор, составленный из собственных значений $A$). Найдите:
+    
+    \begin{enumerate}
+        \item $\displaystyle\frac{\partial}{\partial \lambda} \Tr(A)$
+        \item $\displaystyle\frac{\partial}{\partial Q} \Tr(A)$
+    \end{enumerate}
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим задачу обучения линейной регрессии с функцией ошибки Log-Cosh:
+    \[
+    Q(w) = \frac{1}{\ell} \sum_{i=1}^{\ell} \log (\cosh (w^T x_i - y_i))
+    \]
+    Выпишите формулу для градиента $\nabla_w Q(w)$. Запишите ее в матричном виде, используя матрицу объекты-признаки $X$ и вектор целевых переменных $y$.
+\end{esProblem}
+
+\end{document}
