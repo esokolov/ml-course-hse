@@ -4,6 +4,14 @@
 
 Страница курса: http://wiki.cs.hse.ru/Машинное_обучение_1
 
+Записи лекций и семинаров 2020/2021 года:
+* [Полный плейлист](https://www.youtube.com/playlist?list=PLEwK9wdS5g0oZwFwoQT-BrjmkazJWXxfe)
+* [Вводная лекция](https://www.youtube.com/watch?v=HytWgel76rY)
+* [Линейная регрессия](https://www.youtube.com/watch?v=rNO34vMVS-Q)
+* [Линейная регрессия и градиентное обучение](https://www.youtube.com/watch?v=CWFWFsie6jg)
+* [Продвинутые градиентные методы, линейная классификация](https://www.youtube.com/watch?v=tIymy9jpO9s)
+* [Метрики качества классификации](https://www.youtube.com/watch?v=3Qj87xe3Djk)
+
 Видеозаписи некоторых лекций 2018/19 года:
 * [Линейная регрессия](https://www.youtube.com/watch?v=OBG6EUSRC9g&list=PLEqoHzpnmTfDwuwrFHWVHdr1-qJsfqCUX)
 * [Линейная регрессия (продолжение) и линейная классификация](https://www.youtube.com/watch?v=gn2dP7raceY&list=PLEqoHzpnmTfDwuwrFHWVHdr1-qJsfqCUX&index=2)
