@@ -305,7 +305,7 @@ class LinearRegression:
     def __init__(self, descent, tolerance: float = tolerance_default, max_iter: int = max_iter_default):
         """
         :param descent: Descent class
-        :param tolerance: float stopping criterion for euclidean norm of weight difference
+        :param tolerance: float stopping criterion for square of euclidean norm of weight difference
         :param max_iter: int stopping criterion for iterations
         """
         self.descent = descent
