@@ -1,5 +1,5 @@
 \documentclass[12pt,a4paper]{article}
-\usepackage{../../../../vkCourseML}
+\usepackage{../lecture-notes/vkCourseML}
 \title{Машинное обучение, ФКН ВШЭ\\Семинар №21\\Генерация и отбор признаков. Стекинг}
 \author{}
 \date{}
@@ -128,7 +128,7 @@
 		\subsubsection{F-score}
 	Обобщение для задачи $K$-классовой классификации:
 	\[
-	R_j = \frac {\sum_{k=1}^K \frac {n_j}{K-1} (\mu_j - \mu)^2}   {\frac 1 {\ell-K} \sum_{k=1}^K (n_j -1) \sigma_j^2},
+	R_j = \frac {\sum_{k=1}^K \frac {n_k}{K-1} (\mu_k - \mu)^2}   {\frac 1 {\ell-K} \sum_{k=1}^K (n_k -1) \sigma_k^2},
 	\]
 	где $\mu$ --- среднее признака по всей выборке, остальные обозначения аналогичны предыдущему пункту.
 	
@@ -178,7 +178,7 @@
      	\begin{enumerate}
      		\item Перемешать значения признака по всем объектам обучающей выборки
      		\item Вычислить OOB$_j$ случайного леса, обученного по измененной обучающей выборке
-     		\item Оценить важности: $R_j = \max(0, \text{OOB}-\text{OOB}_j)$
+     		\item Оценить важности: $R_j = \max(0, \text{OOB}_j-\text{OOB})$
      	\end{enumerate}
      \end{enumerate}
  
