@@ -2,9 +2,11 @@
 
 [Конспекты лекций](2016-fall/lecture-notes), [материалы семинаров](2016-fall/seminars) и домашние задания ([теоретические](2016-fall/homeworks-theory), [практические](2016-fall/homeworks-practice), [соревнования](2016-fall/contests)) по курсу "Машинное обучение", проводимому на бакалаврской программе "Прикладная математика и информатика" Факультета компьютерных наук Высшей школы экономики.
 
-Страница курса: http://wiki.cs.hse.ru/Машинное_обучение_1
+Страницы курсов: 
+* http://wiki.cs.hse.ru/Машинное_обучение_1
+* http://wiki.cs.hse.ru/Машинное_обучение_2
 
-Записи лекций и семинаров 2020/2021 года:
+Записи лекций и семинаров 2020/2021 года, осень:
 * [Полный плейлист](https://www.youtube.com/playlist?list=PLEwK9wdS5g0oZwFwoQT-BrjmkazJWXxfe)
 * [Вводная лекция](https://www.youtube.com/watch?v=HytWgel76rY)
 * [Линейная регрессия](https://www.youtube.com/watch?v=rNO34vMVS-Q)
@@ -20,6 +22,10 @@
 * [Стекинг. Обучение без учителя и кластеризация.](https://www.youtube.com/watch?v=kdxnz3cAoeI)
 * [Визуализация, обучение представлений](https://www.youtube.com/watch?v=axiaI8Z9lhA)
 * [Рекомендательные системы](https://www.youtube.com/watch?v=YczTyXIuW-o)
+
+Записи лекций и семинаров 2020/2021 года, весна:
+* [Полный плейлист](https://www.youtube.com/playlist?list=PLEwK9wdS5g0p7A6gXsuXnLZpfrMyqrJKP)
+* [Список лекций, ссылки на записи и конспекты](http://wiki.cs.hse.ru/Машинное_обучение_2#.D0.9B.D0.B5.D0.BA.D1.86.D0.B8.D0.B8)
 
 Видеозаписи некоторых лекций 2018/19 года:
 * [Линейная регрессия](https://www.youtube.com/watch?v=OBG6EUSRC9g&list=PLEqoHzpnmTfDwuwrFHWVHdr1-qJsfqCUX)
