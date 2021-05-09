@@ -10,7 +10,16 @@
 * [Линейная регрессия](https://www.youtube.com/watch?v=rNO34vMVS-Q)
 * [Линейная регрессия и градиентное обучение](https://www.youtube.com/watch?v=CWFWFsie6jg)
 * [Продвинутые градиентные методы, линейная классификация](https://www.youtube.com/watch?v=tIymy9jpO9s)
-* [Метрики качества классификации](https://www.youtube.com/watch?v=3Qj87xe3Djk)
+* [Метрики качества классификации](https://www.youtube.com/watch?v=3Qj87xe3Djk) ([+небольшое продолжение](https://www.youtube.com/watch?v=xk7cU86Sh5A))
+* [Логистическая регрессия](https://www.youtube.com/watch?v=KeNJw_jw8NE) ([+продолжение](https://www.youtube.com/watch?v=ZJ_b_VLQu84))
+* [Метод опорных векторов, многоклассовая классификация](https://www.youtube.com/watch?v=Ec1xYZ9zzEI)
+* [Решающие деревья](https://www.youtube.com/watch?v=h7FF6EcXDqA)
+* [Решающие деревья (продолжение), разложение ошибки на смещение и разброс](https://www.youtube.com/watch?v=t0OhR13Pgwk)
+* [Случайные леса, градиентный бустинг](https://www.youtube.com/watch?v=pXFZsXlVM-M)
+* [Градиентный бустинг (продолжение)](https://www.youtube.com/watch?v=Tq-ofCmY6b4)
+* [Стекинг. Обучение без учителя и кластеризация.](https://www.youtube.com/watch?v=kdxnz3cAoeI)
+* [Визуализация, обучение представлений](https://www.youtube.com/watch?v=axiaI8Z9lhA)
+* [Рекомендательные системы](https://www.youtube.com/watch?v=YczTyXIuW-o)
 
 Видеозаписи некоторых лекций 2018/19 года:
 * [Линейная регрессия](https://www.youtube.com/watch?v=OBG6EUSRC9g&list=PLEqoHzpnmTfDwuwrFHWVHdr1-qJsfqCUX)
