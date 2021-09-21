@@ -1,6 +1,6 @@
 \documentclass[12pt,fleqn]{article}
-% \usepackage{../lecture-notes/vkCourseML}
-\usepackage{vkCourseML}
+\usepackage{../lecture-notes/vkCourseML}
+%\usepackage{vkCourseML}
 \hypersetup{unicode=true}
 %\usepackage[a4paper]{geometry}
 \usepackage[hyphenbreaks]{breakurl}
@@ -519,4 +519,18 @@ z^TX^TXz = ||Xz||^2 > 0, \; \forall z \in \mathbb{R}^d, z \ne 0.
 \]
 
 То есть $X^TX$ является положительно определённой матрицей. Также, по критерию Сильвестра, все главные миноры (в том числе и определитель) положительно определённой матрицы положительны, а, следовательно, матрица $X^TX$ обратима, и решение существует. Если же строк оказывается меньше, чем столбцов, или $X$ не является полноранговой, то $X^TX$ необратима и решение $w$ определено неоднозначно. 
+
+\begin{thebibliography}{1}
+	\bibitem{momo}
+	\emph{Родоманов А.О.} (2017).
+	Матрично-векторное дифференцирование.~//
+	\url{http://www.machinelearning.ru/wiki/images/5/50/MOMO17_Seminar2.pdf}.
+	
+	\bibitem{momo}
+	\emph{Kaare B. Petersen, Michael S. Pedersen} (2012).
+	The Matrix Cookbook.~//
+	\url{https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf}.
+\end{thebibliography}
+
+
 \end{document}
