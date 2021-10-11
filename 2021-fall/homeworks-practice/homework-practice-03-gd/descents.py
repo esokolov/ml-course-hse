@@ -26,8 +26,8 @@ class LearningRate:
 class LossFunction(Enum):
     MSE = auto()
     MAE = auto()
-    Huber = auto()
     LogCosh = auto()
+    Huber = auto()
 
 
 class BaseDescent:
