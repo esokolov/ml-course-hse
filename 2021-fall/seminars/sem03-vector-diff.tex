@@ -83,7 +83,7 @@
     \item При отображении вектора в вектор $f(x): \RR^n \to \RR^m$
     \[
         \mathfrak{J}_x = \bigg(
-            \frac{\partial f_{j}}{\partial x_{i}}
+            \frac{\partial f_{i}}{\partial x_{j}}
         \bigg)_{i,j=1}^{n,m}
     \]
 \end{itemize}
@@ -101,7 +101,7 @@
     \hline
     вектор & $ \nabla_x f(x)^T \dx{x}$    &   $\mathfrak{J} \dx{x}$     &  ---        \\
     \hline
-    матрица & $\Tr( \nabla_A f(A) \dx{A})$    &    ---    & ---        \\
+    матрица & $\Tr( \nabla_A f(A)^T \dx{A})$    &    ---    & ---        \\
     \hline
     \end{tabular}
 \end{center} 
