@@ -13,7 +13,7 @@ class LinearRegression:
     Linear regression class
     """
 
-    def __init__(self, descent_config: dict, tolerance: float = 1e-4, max_iter: int = 1000):
+    def __init__(self, descent_config: dict, tolerance: float = 1e-4, max_iter: int = 300):
         """
         :param descent_config: gradient descent config
         :param tolerance: stopping criterion for square of euclidean norm of weight difference (float)
