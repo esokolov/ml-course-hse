@@ -109,11 +109,12 @@ class StochasticDescent(VanillaGradientDescent):
     Stochastic gradient descent class
     """
 
-    def __init__(self, dimension: int, lambda_: float = 1e-3, batch_size: int = 50):
+    def __init__(self, dimension: int, lambda_: float = 1e-3, batch_size: int = 50,
+                 loss_function: LossFunction = LossFunction.MSE):
         """
         :param batch_size: batch size (int)
         """
-        super().__init__(dimension, lambda_)
+        super().__init__(dimension, lambda_, loss_function)
         self.batch_size = batch_size
 
     def calc_gradient(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -126,8 +127,8 @@ class MomentumDescent(VanillaGradientDescent):
     Momentum gradient descent class
     """
 
-    def __init__(self, dimension: int, lambda_: float = 1e-3):
-        super().__init__(dimension, lambda_)
+    def __init__(self, dimension: int, lambda_: float = 1e-3, loss_function: LossFunction = LossFunction.MSE):
+        super().__init__(dimension, lambda_, loss_function)
         self.alpha: float = 0.9
 
         self.h: np.ndarray = np.zeros(dimension)
@@ -145,8 +146,8 @@ class Adam(VanillaGradientDescent):
     Adaptive Moment Estimation gradient descent class
     """
 
-    def __init__(self, dimension: int, lambda_: float = 1e-3):
-        super().__init__(dimension, lambda_)
+    def __init__(self, dimension: int, lambda_: float = 1e-3, loss_function: LossFunction = LossFunction.MSE):
+        super().__init__(dimension, lambda_, loss_function)
         self.eps: float = 1e-8
 
         self.m: np.ndarray = np.zeros(dimension)
@@ -170,11 +171,12 @@ class BaseDescentReg(BaseDescent):
     A base class with regularization
     """
 
-    def __init__(self, dimension: int, lambda_: float = 1e-3, mu: float = 0):
+    def __init__(self, dimension: int, lambda_: float = 1e-3, loss_function: LossFunction = LossFunction.MSE,
+                 mu: float = 0):
         """
         :param mu: regularization coefficient (float)
         """
-        super().__init__(dimension, lambda_)
+        super().__init__(dimension, lambda_, loss_function)
 
         self.mu = mu
 
