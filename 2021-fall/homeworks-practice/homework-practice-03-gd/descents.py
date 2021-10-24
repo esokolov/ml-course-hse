@@ -171,12 +171,11 @@ class BaseDescentReg(BaseDescent):
     A base class with regularization
     """
 
-    def __init__(self, dimension: int, lambda_: float = 1e-3, loss_function: LossFunction = LossFunction.MSE,
-                 mu: float = 0):
+    def __init__(self, *args, mu: float = 0, **kwargs):
         """
         :param mu: regularization coefficient (float)
         """
-        super().__init__(dimension, lambda_, loss_function)
+        super().__init__(*args, **kwargs)
 
         self.mu = mu
 
