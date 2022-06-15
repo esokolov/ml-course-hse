@@ -149,7 +149,7 @@ class BaseOptimizer(BaseEstimator, ABC):
         if not hasattr(self.best_estimator, 'predict_proba'):
             raise ValueError('Estimator does not support predict_proba')
 
-        y_pred = np.zeros(X_test.shape[0], 1)
+        y_pred = np.zeros((X_test.shape[0], 1))
         # your code here ┐(シ)┌
         return y_pred
 
