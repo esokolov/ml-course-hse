@@ -1,0 +1,115 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{vkCourseML}
+\hypersetup{unicode=true}
+%\usepackage[a4paper]{geometry}
+\usepackage[hyphenbreaks]{breakurl}
+
+\interfootnotelinepenalty=10000
+
+\begin{document}
+\title{Лекция 15\\EM-алгоритм}
+\author{Е.\,А.\,Соколов\\ФКН ВШЭ}
+\maketitle
+
+
+Изучив EM-алгоритм, возникает вопрос, зачем, было придумывать что-то новое, если уже есть хорошие методы оптимизации? Оказывается, что между данным методом и градиентным подъемом есть довольно сильная связь.
+
+\section{Связь EM-алгоритма и градиентного подъёма}
+\begin{vkTheorem}
+    Для смеси гауссиан шаг, сделанный в EM-алгоритме~--- это шаг градиентного подъёма, масштабированный на матрицу P, то есть:
+    \begin{equation}
+    \label{eq:form}
+    \theta^{i+1} - \theta^{i}= P(\theta^i)\cdot\nabla_{\theta} log(p(X|\theta^i))
+    \end{equation}
+\end{vkTheorem}
+\begin{vkProof}
+Рассмотрим шаг EM-алгоритма для смеси гауссиан. 
+
+Сначала вычисляются апостериорные вероятности $p(Z|X,\theta)$: 
+\begin{gather*}
+g_{ik} = \dfrac{\pi_k^{old} \mathcal{N}(x_i|\mu_{k}^{old}, \Sigma_{k}^{old})}{\sum\limits_{s}\pi_s^{old} \mathcal{N}(x_i|\mu_{s}^{old}\Sigma_{k}^{old})}
+\end{gather*}
+
+Затем пересчитываются параметры распредления:
+\begin{gather*}
+\pi_{k} = \dfrac{1}{l}\sum\limits_{i=1}^l g_{ik},\qquad 
+\mu_{k} = \dfrac{1}{l\pi_k}\sum\limits_{i=1}^l g_{ik}x_i,\qquad 
+\Sigma_k = \dfrac{1}{l\pi_k}\sum\limits_{i=1}^l g_{ik}(x_i - \mu_k)(x_i - \mu_k)^T
+\end{gather*}
+
+Теперь, убедимся, что утверждение теоремы выполнено для параметра $\pi_k$. Для этого продифференцируем логарифм неполного правдоподобия по этому параметру:
+\begin{gather*}
+\dfrac{\partial}{\partial \pi_k} \log p(x_i|\theta) = \dfrac{\partial}{\partial \pi_k} \sum\limits_{i=1}^l log\left(\sum\limits_{k=1}^K \pi_k \cdot \mathcal{N}(x_i|\mu_k,\Sigma_k)\right)=\sum\limits_{i=1}^l
+\dfrac{\mathcal{N}(x_i|\mu_{k}, \Sigma_{k})}{\sum\limits_{s}\pi_s \mathcal{N}(x_i|\mu_{s}\Sigma_{s})}
+\end{gather*}
+Рассмотрим разницу старого и нового значения параметра $\pi_k$:
+\begin{gather*}
+\pi_k^{new}-\pi_k^{old} = \dfrac{1}{l}\sum\limits_{i=1}^l
+\dfrac{\pi_k^{old} \mathcal{N}(x_i|\mu_{k}^{old}, \Sigma_{k}^{old})}{\sum\limits_{s}\pi_s^{old} \mathcal{N}(x_i|\mu_{s}^{old}\Sigma_{s}^{old})} - \pi_k^{old}=\\
+=\dfrac{1}{l}\left(\begin{pmatrix}
+\pi_1^{old}&0&\cdots &0\\ 
+0&\pi_2^{old}&\cdots &0\\
+\vdots &\vdots &\ddots &\vdots \\
+0&0&\cdots & \pi_K^{old}
+\end{pmatrix} - \begin{pmatrix}
+\pi_1^{old}\\ 
+\vdots\\
+\pi_K^{old}
+\end{pmatrix} \cdot \begin{pmatrix}
+\pi_1^{old} & \ldots & \pi_K^{old}
+\end{pmatrix}\right) \cdot \underbrace{\begin{pmatrix}
+\sum\limits_{i=1}^l
+\frac{\mathcal{N}(x_i|\mu_{1}, \Sigma_{1})}{\sum\limits_{s}\pi_s \mathcal{N}(x_i|\mu_{s}\Sigma_{s})}\\ 
+\vdots\\
+\sum\limits_{i=1}^l
+\frac{\mathcal{N}(x_i|\mu_{K}, \Sigma_{K})}{\sum\limits_{s}\pi_s \mathcal{N}(x_i|\mu_{s}\Sigma_{s})}
+\end{pmatrix} }_{\nabla_{\pi}\log p(x_i|\theta)}=\\
+=\underbrace{\dfrac{1}{l}\left(\begin{pmatrix}
+\pi_1^{old}&0&\cdots &0\\ 
+0&\pi_2^{old}&\cdots &0\\
+\vdots &\vdots &\ddots &\vdots \\
+0&0&\cdots & \pi_K^{old}
+\end{pmatrix} - \begin{pmatrix}
+\pi_1^{old}\\ 
+\vdots\\
+\pi_K^{old}
+\end{pmatrix} \cdot \begin{pmatrix}
+\pi_1^{old} & \ldots & \pi_K^{old}
+\end{pmatrix}\right)}_{P_{\pi}^i} \cdot \nabla_{\pi}\log p(x_i|\theta)
+\end{gather*}
+То есть мы явно предъявили матрицу $P_{\pi}^i$, такую, что утверждение теоремы верно. Аналогично можно показать для $\mu$ и $\Sigma$.
+\end{vkProof}
+
+Данный вид EM-алгоритма похож на один из методов второго порядка, а именно метод Ньютона, который является улучшений версией градиентного спуска, в силу более быстрой сходимости. Посмотрим на сколько EM-алгоритм ускоряет градиентный спуск.
+
+Можно заметить, что в EM-алгоритме параметры пересчитываются, как некоторая функция от прошлых значений, то есть
+
+\begin{equation}
+\label{eq:function}
+\theta^{i+1} = M(\theta^i)
+\end{equation}
+
+Для всех случаев, где EM-алгоритм применяется в теореме 1.1 было показано, что разница старого и нового значения параметра вычисляется как градиент, умноженный на какую-то матрицу $P$, перепишем выражение учитывая ~\eqref{eq:function} и продифференцируем по $\theta^i$. 
+
+\begin{gather*}
+ \theta^{i+1} - \theta^{i}= P(\theta^i)\cdot\nabla_{\theta} log(p(X|\theta^i)) = M(\theta^i) - \theta^i= P_{\theta}^i\cdot\nabla_{\theta} log(p(X|\theta^i)\\
+ \dfrac{d}{d \theta^i} = M'(\theta^i) - I = P'(\theta^i)\cdot \nabla_{\theta} log(p(X|\theta^i)) +P(\theta^i)\cdot \underbrace{\nabla^2_{\theta} log(p(X|\theta^i)}_{S(\theta^i)}
+\end{gather*}
+
+Заметим, что слагаемое $\nabla_{\theta} log(p(X|\theta^i))\approx 0$ когда мы находимся около $\theta^*$ или в плоском регионе. Положим, что мы там, тогда
+\begin{gather*}
+ M'(\theta^i) - I \approx P(\theta^i)\cdot S(\theta^i) \implies P(\theta^i) \approx \left(I-M'(\theta^i)\right)\cdot \left(-S(\theta^i)\right)^{-1}
+\end{gather*}
+
+Отсюда можно заметить, что если собственные значения $M(\theta^i) \approx 0$, то\\ $P(\theta^i)\approx (-S(\theta^i))^{-1}$, тогда формула ~\eqref{eq:form} ~--- в точности шаг метода Ньютона. Получается, что если мы находимся около $\theta^*$ или в плоском регионе и собственные значения $M(\theta^i) \approx 0$, тогда EM-алгоритм преобретает суперлинейную скорость сходимости.
+
+Теперь осталось понять, где выполнено условие, что собственные значения $M(\theta^i) \approx 0$. Утверждается, что это выполнено, если известной информации больше, чем неизвестной. Другими словами, это зависит от того, насколько хорошо мы можем описать данные распределениями.
+
+\begin{thebibliography}{1}
+\bibitem{wu83convergence}
+    \emph{Ruslan Salakhutdinov, Sam Roweis, Zoubin Ghahramani}.
+    Optimization with EM and Expectation-Conjugate-Gradient.~//
+    Published in ICML 21 August 2003.
+\end{thebibliography}
+
+\end{document}
