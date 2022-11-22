@@ -47,6 +47,17 @@ $$
 \mu(X)(x) = w(X ) \,x, \quad w(X) = \dfrac{\sum_i x_i y_i}{\sum_i x_i^2 + \lambda}.
 $$
 
+Обратите внимание, что мы здесь оптимизируем сумму ошибок. Если бы мы оптимизировали 
+
+$$
+L(w) = \frac{1}{\ell} \sum_{i=1}^\ell (y_i - w x_i)^2 + \lambda \cdot w^2,
+$$
+тогда мы бы получили 
+$$
+w(X) = \dfrac{\sum_i x_i y_i}{\sum_i x_i^2 + \ell \cdot \lambda}.
+$$ 
+Получается, что если мы не усредняем функцию потерь, тогда гиперпараметр $\lambda$ будет функцией от $\ell.$
+
 Чтобы сделать разложение на смещение и разброс, нужно описать вероятностную модель данных.
 Это можно делать по-разному.
 Мы попробуем два набора из предпосылок.
@@ -111,19 +122,19 @@ $$
     =
     a \cdot \dfrac{\sum_i x_i^2}{\sum_i x_i^2 + \lambda} \cdot x -  a\, x
     =
-    \gamma\, a\, x -  a\, x.
+    a \cdot \dfrac{s}{s + \lambda} \cdot x -  a\, x
     $$
 
     Мы сняли математическое ожидание $\EE_{x},$ так как считаем объекты детерминированными.
-    За $\gamma$ мы обозначили величину $\dfrac{\sum_i x_i^2}{\sum_i x_i^2 + \lambda}$.
+    За $s$ мы обозначили величину $\sum_i x_i^2$.
     
-    Если $\gamma = 1,$ тогда $\lambda = 0$ и смещение модели равно нулю.
+    Если $\dfrac{s}{s + \lambda} = 1,$ тогда $\lambda = 0$ и смещение модели равно нулю.
     В этом случае мы оптимизируем MSE без регуляризатора и имеем дело с обычной линейной регрессией.
     Если $\lambda > 0,$ тогда в модели появляется смещение.
     При этом смещёнными оказываются не только прогнозы модели, но и коэффициенты в ней.
     Найдём квадрат смещения, именно его мы будем использовать в разложении
     $$
-    \EE_{x} \left[(\EE_{X}\left[\mu(X)(x)\right] - \EE\left[y|x\right])^2 \right] = (\gamma - 1)^2\, a^2\, x^2
+    \EE_{x} \left[(\EE_{X}\left[\mu(X)(x)\right] - \EE\left[y|x\right])^2 \right] = \left(\dfrac{s}{s + \lambda} - 1\right)^2\, a^2\, x^2
     $$
 \end{esSolution}
 
@@ -147,64 +158,74 @@ $$
         \text{Var}_X \left[ \dfrac{\sum_i x_i (f(x_i) + \varepsilon_i)}{\sum_i x_i^2 + \lambda} x \right]
         = \\ =
         \text{Var}_X \left[ \dfrac{\sum_i a \, x_i^2}{\sum_i x_i^2 + \lambda} \, x  + \dfrac{\sum_i x_i \varepsilon_i}{\sum_i x_i^2 + \lambda} x \right]
-        = \\ =
+        = 
         \text{Var}_X \left[ \dfrac{\sum_i x_i \varepsilon_i}{\sum_i x_i^2 + \lambda} x \right]
+        = \\ = 
+        \dfrac{1}{(\sum_i x_i^2 + \lambda)^2} \, x^2 \, \sum_i x_i^2  \, \text{Var}_{\varepsilon}(\varepsilon_i)
         =
-        \left(\dfrac{\sum_i x_i}{\sum_i x_i^2 + \lambda}\right)^2 x^2 \sigma^2
-        =
-        \gamma^2 \, x^2 \, \sigma^2
+        \dfrac{\sum_i x_i^2}{(\sum_i x_i^2 + \lambda)^2} \, x^2 \, \sigma^2 
     \end{multline*}
 
     Получается, что 
-    $$
-    \EE_{x}\left[\text{Var}_X\left[\mu(X)(x)\right]\right]
-    =
-    \EE_{x} \left[\EE_{X} \left[(\mu(X)(x) - \EE_{X}\left[\mu(X)(x)\right] )^2 \right]\right] = \EE_{x}\left[\gamma^2 \, x^2 \, \sigma^2\right] = \gamma^2 \, x^2 \, \sigma^2.
-    $$
+    \begin{multline*}
+        \EE_{x}\left[\text{Var}_X\left[\mu(X)(x)\right]\right]
+        =
+        \EE_{x} \left[\EE_{X} \left[(\mu(X)(x) - \EE_{X}\left[\mu(X)(x)\right] )^2 \right]\right] 
+        = \\ =
+        \EE_{x}\left[\dfrac{\sum_i x_i^2}{(\sum_i x_i^2 + \lambda)^2} \, x^2 \, \sigma^2 \right] 
+        = 
+        \dfrac{\sum_i x_i^2}{(\sum_i x_i^2 + \lambda)^2} \, x^2 \, \sigma^2 .
+        = \dfrac{s}{(s + \lambda)^2} \, x^2 \, \sigma^2 .
+    \end{multline*}
 
     Последнее математическое ожидание мы сняли, так как предполагаем, что $x$ детерминированы. 
 \end{esSolution}
 
-Вспомним, что $\gamma = \dfrac{\sum_i x_i^2}{\sum_i x_i^2 + \lambda}$ и запишем получившееся разложение
+Запишем получившееся разложение
 
 $$
 \EE_{x, y}\left[\EE_{X}\left[ (y - \mu(X)(x))^2 \right]\right]
 =
-\sigma^2 + (\gamma - 1)^2 a^2 x^2 + \gamma^2 x^2 \sigma^2.
+\sigma^2 + \left(\dfrac{s}{s + \lambda} - 1\right)^2\, a^2\, x^2 + \dfrac{s}{(s + \lambda)^2} \, x^2 \, \sigma^2 .
 $$
 
 С помощью гиперпараметра $\lambda$ мы можем настраивать силу регуляризации.
-Чем больше это значение, тем меньше значение $\gamma$.
-Чем меньше $\gamma,$ тем меньше разброс модели и больше смещение.
+Чем больше это значение, тем меньше разброс модели и больше смещение.
 
 \begin{vkProblem}
-    Подберите $\gamma,$ которое будет давать нам оптимальный баланс между смещением и разбросом.
+    Подберите $\lambda,$ которое будет давать нам оптимальный баланс между смещением и разбросом.
     Это значение должно улучшать качество прогноза с точки зрения среднеквадратичной ошибки.
-    Правда ли, что $\gamma$ отличается от единицы?
+    Правда ли, что $\lambda$ отличается от нуля?
     Почему силу регуляризации нельзя подобрать по выборке, воспользовавшись получившейся формулой?
 \end{vkProblem}
 \begin{esSolution}
     Решим задачу оптимизации 
     
     $$
-    \sigma^2 + (\gamma - 1)^2 a^2 x^2 + \gamma^2 x^2 \sigma^2 \to \min_{\gamma}.
+    \sigma^2 + \left(\dfrac{s}{s + \lambda} - 1\right)^2\, a^2\, x^2 + \dfrac{s}{(s + \lambda)^2} \, x^2 \, \sigma^2  \to \min_{\lambda}.
+    $$
+
+    Сделаем замену переменной $\gamma = \dfrac{1}{s + \lambda}$
+
+    $$
+    \sigma^2 + \left(s \, \gamma - 1\right)^2\, a^2\, x^2 + s \, \gamma^2 \, x^2 \, \sigma^2  \to \min_{\lambda}.
     $$
     
     \noindent Перед нами парабола с ветвями вверх
     $$
-    (a^2 + \sigma^2) \, x^2 \, \gamma^2 - 2a^2x^2 \, \gamma + 1 + \sigma^2,
+    (s a^2 + \sigma^2) \, x^2 \, s \, \gamma^2 - 2 \, s \, a^2 \, x^2 \, \gamma + a^2 \, x^2 + \sigma^2
     $$
     значит её минимум можно найти как
     $$
-    \gamma^{*} = \dfrac{2a^2x^2}{2(a^2 + \sigma^2)x^2} = \dfrac{a^2}{a^2 + \sigma^2}. 
+    \gamma^{*} = \dfrac{2 \, s \, a^2 \, x^2}{2 \, (s \, a^2 + \sigma^2) \, x^2 \, s} = \dfrac{a^2}{s \, a^2 + \sigma^2} =  \dfrac{1}{s  + \sigma^2/a^2}.
     $$
-    Получившаяся величина отличается от единицы, так как $\sigma^2 > 0.$
+    Получается
+    $$
+    \lambda^{*} = \dfrac{\sigma^2}{a^2}.
+    $$
+    Получившаяся величина отличается от нуля, так как $\sigma^2 > 0.$
     Выходит, что модель, дающая лучший прогноз, оказывается смещённой.
-    Выразим из $\gamma^{*}$ оптимальное~$\lambda$
-    $$
-    \lambda^{*} = \dfrac{\sigma^2}{a^2} \cdot \sum_i x_i^2.
-    $$
-    Мы не можем подобрать его по обучающей выборке, так как не знаем значения коэффициента $a$.
+    Гиперпараметр $\lambda$ мы не можем подобрать по обучающей выборке, так как не знаем значения коэффициента $a$.
     Нам нужно оценить его с помощью нашей модели, оптимизация которой, в свою очередь, зависит от выбранного значения $\lambda.$
     Из-за этого приходится подбирать силу регуляризатора с помощью перебора.
 \end{esSolution}
@@ -228,7 +249,7 @@ $$
 Иными словами, $y \sim p(y|x) = \mathcal{N}(f(x), \sigma_2^2)$.
 
 Мы будем рассматривать два простых частных случая: $f(x) = ax$, когда модель зависимости отвечает искомой зависимости, и $f(x)$ --- четная функция, т. е. $f(-x) = f(x)$.  
-\newpage
+
 \begin{vkProblem}
 Найдите шумовую компоненту для одномерной линейной регрессии.
 \end{vkProblem}
