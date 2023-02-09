@@ -1,0 +1,193 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[russian]{babel} 
+\usepackage[utf8]{inputenc}	
+\usepackage[%
+    left=0.0in,%
+    right=0.0in,%
+    top=1.0in,%
+    bottom=1.0in,%
+]{geometry}%
+\spanishdecimal{.}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{multirow,booktabs}
+\usepackage[table]{xcolor}
+\usepackage{fullpage}
+\usepackage{lastpage}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{epigraph}
+\usepackage{amsfonts}
+
+\usepackage{calc}
+\usepackage{multicol}
+\usepackage{cancel}
+\usepackage[retainorgcmds]{IEEEtrantools}
+\usepackage[margin=1cm]{geometry}
+\usepackage{floatrow}
+\newlength{\tabcont}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+\theoremstyle{definition}
+
+\headheight 5pt
+\setlength{\parindent}{5ex}
+
+\begin{document}
+
+\centerline{\Large {\textbf{Теоретическое домашнее задание № 5}}}
+\vspace{5mm}
+\centerline{\Large {\textbf{Решения}}}
+\vspace{5mm}
+\centerline{\large А. Безрукова}
+\epigraph{Здесь могла бы быть ваша реклама, но нормальную так и не подвезли}{Неизвестный маркетолог}
+
+\vspace{-3mm}
+\newcounter{zd}
+\setcounter{zd}{1}
+
+\large{
+\textbf{Задача 1:}
+Рассмотрим двойственное представление задачи гребневой регрессии:
+    \[
+        Q(a)
+        =
+        \frac{1}{2} \| K a - y \|^2 + \frac{\lambda}{2} a^T K a \to \min_a.
+    \]
+        Покажите, что решение этой задачи записывается как
+    \[
+a = (K + \lambda I)^{-1} y.
+    \]
+    
+\textbf{Решение:}
+Найдем проиизводную $\frac{dQ}{da}$ (вспоминаем курс по ОМВ):
+
+\[
+        \frac{dQ}{da} = d_{a}\left( \frac{1}{2} \| K a - y \|^2 + \frac{\lambda}{2} a^T K a \right)
+        =
+        d_{a}\left( \frac{1}{2} \| K a - y \|^2 \right) + d_{a}\left( \frac{\lambda}{2} a^T K a \right) =
+    \]
+    \[
+        = \left( \frac{1}{2}  \cdot 2 \cdot K^{T}  \left(K a - y\right) \right) + \left( \frac{\lambda}{2}  \cdot 2 \cdot K^{T}a \right) = K^{T}  \left(K a - y\right) + \lambda K^{T}a = 
+    \]
+    \[
+        = K^{T} K a - K^{T} y + \lambda K^{T}a 
+    \]
+
+Тогда:
+
+\[
+        \frac{dQ}{da} = 0 \Longleftrightarrow K^{T} K a  + \lambda K^{T}a = K^{T} y
+    \]
+    \[
+        K^{T} K a  + \lambda K^{T}a = K^{T} y \Longleftrightarrow K^{T} \left(K a + \lambda Ia \right) = K^{T} y \Longleftrightarrow \left(K + \lambda I\right)a = y
+    \]
+Следовательно $a = \left(K + \lambda I\right)^{-1}y$
+\newpage
+
+\textbf{Задача 2:} Покажите, что функция
+    \[
+        K(x, z) = \cos(x - z)
+    \]
+    для~$x, z \in \RR$ является ядром.
+\\
+
+\textbf{Решение:} Покажем, что наша функция является суммой двух ядер, а потому и сама является ядром
+
+По теореме Эйлера $K(x, z) = \cos(x - z) = \frac{1}{2} e^{i(x - z)} + \frac{1}{2} e^{-i(x - z)} = K_{1}(x, z) + K_{2}(x, z)$
+
+Однако, так как $e^{-i(x - z)} = e^{i(z - x)} $, достаточно показать, что $K_{1}$ - ядро. По теореме Мерсера, функция $K(x, z)$ является ядром тогда и только тогда, когда она симметрична и неотрицательно определена. Проверим эти условия для $K_{1}$ с тем уточнением, что наша функция - комплексная, а потому придется смотреть не на симметричность, а на сопряженную симметричность
+
+\begin{enumerate} 
+  \item симметрия: $\overline{K(z, x)} = \overline{\cos(z - x) + i \sin(z - x)} = \cos(x - z) + i \sin(x - z) = K(x, z)$
+  \item  неотрицательность: $K = (K(x_{i}, x_{j}))_{n = 1}^{l} = \sum_{i=1}^N \sum_{j=1}^N c_{i} c_{j} e^{i(x_{i} - x_{j})} = \sum_{i=1}^N  c_{i}e^{ix_{i}} \cdot \sum_{j=1}^N c_{j}e^{ix_{j}} = |\sum_{i=1}^N  c_{i}e^{ix_{i}}|^2 \geq 0 $
+\end{enumerate}
+
+Таким образом $K_{1}(x, z)$ - ядро. Следовательно и $K(x, z)$ - ядро.
+\\
+\newpage
+
+\textbf{Задача 3:} Рассмотрим функцию, равную косинусу угла между двумя векторами~$x, z \in \RR^d$:
+    \[
+        K(x, z) = \cos(\widehat{x, z}).
+    \]
+    Покажите, что она является ядром.
+\\
+
+\textbf{Решение:}
+
+Для начала следует отметить, что $K(x, z) = \cos(\widehat{x, z}) = \frac{<x, z>}{||x|| \cdot ||z||}$
+
+Мы знаем, как менять ядро так, чтобы оно соответствовало скалярному произведению нормированных векторов - нужно просто заменить $\varphi(x)$ на $\widetilde\varphi(x) = \frac{\varphi(x)}{||\varphi(x)||}$
+
+В таком случае $\widetilde K(x, z)$ - ядро, где 
+\[
+    \widetilde K(x, z) = \left\langle \widetilde\varphi(x), \widetilde\varphi(z) \right\rangle = \left\langle \frac{\varphi(x)}{||\varphi(x)||}, \frac{\varphi(z)}{||\varphi(z)||} \right\rangle  = \frac{\left\langle \varphi(x), \varphi(z) \right\rangle }{||\varphi(x)|| ||\varphi(z)||}
+\]
+
+Подставив $\varphi(x) = x$ в $\widetilde K(x, z)$, получим желаемое.
+\\
+
+\newpage
+\textbf{Задача 4:} Рассмотрим ядра~$K_1(x, z) = (xz + 1)^2$ и~$K_2(x, z) = (xz - 1)^2$,
+    заданные для~$x, z \in \mathbb{R} $.
+    Найдите спрямляющие пространства для~$K_1$, $K_2$ и~$K_1 + K_2$.
+\\
+
+\textbf{Решение:}
+\begin{enumerate} 
+  \item найдем спрямляющее пространство для $K_1(x, z) = (xz + 1)^2$
+  \begin{itemize} 
+  $K_1(x, z) = (xz + 1)^2 = (xz)^2 + 2xz + 1$. 
+  \\
+  Тогда возьмем $\varphi(x) = (x^2, x \sqrt{2}, 1): \left \langle \varphi(x), \varphi(z) \right \rangle = x^2 z^2 + 2xz + 1$
+  \end{itemize}
+  \item найдем спрямляющее пространство для $K_2(x, z) = (xz - 1)^2$
+  \begin{itemize}
+    $K_2(x, z) = (xz - 1)^2 = (xz)^2 - 2xz + 1$. 
+  \\
+  Тогда возьмем $\varphi(x) = (x^2, ix \sqrt{2}, 1): \left \langle \varphi(x), \varphi(z) \right \rangle = x^2 z^2 - 2xz + 1$
+  \end{itemize}
+  \item найдем спрямляющее пространство для $K_1(x, z) + K_2(x, z)$
+  \begin{itemize}
+  $K_1(x, z) + K_2(x, z) = 2(xz)^2 + 2$
+  \\
+  Тогда возьмем $\varphi(x) = (x^2\sqrt{2}, \sqrt{2}): \left \langle \varphi(x), \varphi(z) \right \rangle = 2x^2 z^2 + 2$
+  \end{itemize}
+\end{enumerate}
+
+\newpage
+
+\textbf{Задача 5:} Рассмотрим следующую функцию на пространстве вещественных чисел:
+    \[
+        K(x, z) = \frac{1}{1 + e^{-xz}}.
+    \]
+    Покажите, что она не является ядром.
+\\
+
+\textbf{Решение:} Покажем, что для этой функции не выполняются условия теоремы Мерсера
+
+\begin{enumerate} 
+  \item симметричность:
+  \begin{itemize}
+   $K(x, z)$ = {\Large $\frac{1}{1 + e^{-xz}} = \frac{1}{1 + e^{-zx}}$} = $K(z, x)$ - выполнена
+  \end{itemize}
+  \item неотрицательная определенность: 
+  \begin{itemize}
+  Возьмем $\left \{ x_{i}\right \}_{i=1}^2 = \left \{ \frac{2}{\sqrt{3}}, \sqrt{3}\right \}$ и построим матрицу $K$
+  \\
+   {\Large K = \begin{bmatrix}
+  \frac{1}{1 + e^{-\frac{4}{3}}} &  \frac{1}{1 + e^{-2}} \\
+  \frac{1}{1 + e^{-2}} & \frac{1}{1 + e^{-3}}
+  \end{bmatrix}}
+  \\
+  Первый минор равен {\Large{$\frac{1}{1 + e^{-\frac{4}{3}}} > 0$}}
+  \\
+  Второй минор равен {\Large $\frac{1}{1 + e^{-\frac{4}{3}} + e^{-3} + e^{-\frac{13}{3}}} - \frac{1}{1 + 2e^{-2} + e^{-4}} < 0 $} (несложно проверить, что $1 + e^{-\frac{4}{3}} + e^{-3} + e^{-\frac{13}{3}} > 1 + 2e^{-2} + e^{-4}$) - не выполнена
+  \end{itemize}
+\end{enumerate}
+Следовательно, функция $K(x, z)$ не является ядром
+}
+\end{document}
