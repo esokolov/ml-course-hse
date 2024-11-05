@@ -1,0 +1,84 @@
+\documentclass[12pt,fleqn]{article}
+
+\usepackage{../lecture-notes/vkCourseML}
+\newcommand{\dx}[1]{\,\mathrm{d}#1} % маленький отступ и прямая d
+
+\usepackage{lipsum}
+\usepackage{indentfirst}
+\title{Машинное обучение, ФКН ВШЭ\\Теоретическое домашнее задание №2\\Матрично-вектороное дифференцирование и градиентный спуск}
+\author{}
+\date{}
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+\begin{document}
+
+\maketitle
+
+\begin{esProblem}
+    Пусть $f(X) = \ln \det X,$ где $X \in \mathbb{R}^{n\times n}$. Найдите производную $\nabla_X f(X)$.
+\end{esProblem}
+
+\begin{esProblem}
+    Пусть $f(x) = x^T \exp(xx^T)x$, где $x \in \mathbb{R}^{n}$, а $\exp(B)$~--- \href{https://en.wikipedia.org/wiki/Matrix_exponential}{матричная экспонента},
+    $B \in \mathbb{R}^{n \times n}$.
+    Матричной экспонентой обозначают ряд
+    \begin{equation*}
+        I_n + \frac{B}{1!} + \frac{B^2}{2!} + \frac{B^3}{3!} + \frac{B^4}{4!} + \ldots = \sum_{k=0}^\infty \frac{B^k}{k!} .
+    \end{equation*}
+    Найдите производную $\nabla_x f(x)$.
+\end{esProblem}
+
+\begin{esProblem}
+    Пусть $A \in \mathbb{R}^{m \times n}, b \in \mathbb{R}^m, x \in \mathbb{R}^n$. Найдите производную $\nabla_x f(x)$ функции
+    \[
+    f(x) = \sin \|Ax + b\|_2
+    \]
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим симметричную матрицу $A \in \mathbb{R}^{n \times n}$ и ее спектральное разложение $A = Q \Lambda Q^T$.
+    Пусть $\lambda \in \mathbb{R}^n$ - это диагональ матрицы $\Lambda$ (то есть вектор, составленный из собственных значений $A$).
+    Найдите производные:
+    
+    \begin{enumerate}
+        \item $\displaystyle \nabla_\lambda \Tr(A)$
+        \item $\displaystyle \nabla_Q \Tr(A)$
+    \end{enumerate}
+\end{esProblem}
+
+\begin{esProblem}
+    Рассмотрим задачу обучения линейной регрессии с функцией потерь Log-Cosh:
+    \[
+    Q(w) = \frac{1}{\ell} \sum_{i=1}^{\ell} \ln (\cosh (w^T x_i - y_i))
+    \]
+    Выпишите формулу для градиента $\nabla_w Q(w)$. Запишите ее в матричном виде, используя матрицу объекты-признаки $X$ и вектор целевых переменных $y$.
+\end{esProblem}
+
+\begin{esProblem}
+    В случае одномерной Ridge-регрессии минимизируется функция со штрафом:
+    \[
+    Q(w) = (y - xw)^T(y - xw) + \lambda w^2,
+    \]
+    где $\lambda$ — положительный параметр, штрафующий функцию за слишком большие значения $w$.
+    
+    \begin{enumerate}
+        \item Найдите производную $\nabla_w Q(w)$, выведите формулу для оптимального $w$.
+        \item Найдите вторую производную $\nabla_w^2 Q(w)$. Убедитесь, что мы оказались в точке минимума. 
+        \item Выпишите шаг градиентного спуска в матричном виде.
+    \end{enumerate}
+\end{esProblem}
+
+\begin{esProblem}
+    Найдите симметричную матрицу $X$, наиболее близкую к матрице $A$ по норме Фробениуса~($\sum_{i,j} (x_{ij} - a_{ij})^2$).
+    Иными словами, решите задачу условной матричной минимизации 
+    \begin{equation*}
+    \begin{cases}
+    &||X - A||_F^2 \to \min_{X}  \\
+    &X^T = X
+    \end{cases}
+    \end{equation*}
+    \textbf{Hint:} Надо будет выписать лагранжиан.  А ещё пригодится тот факт, что $\sum_{i,j} (x_{ij} - a_{ij})^2 = ||X - A||_F^2 =  \Tr((X-A)^T (X-A))$.
+\end{esProblem}
+
+\end{document}
+
