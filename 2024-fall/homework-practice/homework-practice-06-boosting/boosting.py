@@ -50,9 +50,6 @@ class Boosting:
 
         for _ in range(self.n_estimators):
             self.partial_fit(...)
-            self.find_optimal_gamma(...)
-            self.gammas.append(...)
-            self.models.append(...)
 
         if plot:
             self.plot_history(...)
