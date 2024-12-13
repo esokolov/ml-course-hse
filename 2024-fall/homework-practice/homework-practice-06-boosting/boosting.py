@@ -41,10 +41,13 @@ class Boosting:
     def partial_fit(self, X, y):
         raise Exception("partial_fit method not implemented")
 
-    def fit(self, X_train, y_train, plot=False):
+    def fit(self, X_train, y_train, X_val=None, y_val=None, plot=False):
         """
         :param X_train: features array (train set)
         :param y_train: targets array (train set)
+        :param X_val: features array (eval set)
+        :param y_val: targets array (eval set)
+        :param plot: bool 
         """
         train_predictions = np.zeros(y_train.shape[0])
 
