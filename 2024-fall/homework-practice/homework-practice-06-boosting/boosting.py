@@ -36,7 +36,7 @@ class Boosting:
 
         self.sigmoid = lambda x: 1 / (1 + np.exp(-x))
         self.loss_fn = lambda y, z: -np.log(self.sigmoid(y * z)).mean()
-        self.loss_derivative = lambda y, z: -y * self.sigmoid(-y * z)
+        self.loss_derivative = lambda y, z: z * np.expm1(np.log1p(y))  # Исправьте формулу на правильную. 
 
     def partial_fit(self, X, y):
         raise Exception("partial_fit method not implemented")
