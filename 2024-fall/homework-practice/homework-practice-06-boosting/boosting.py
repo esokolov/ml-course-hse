@@ -32,13 +32,13 @@ class Boosting:
 
         self.learning_rate: float = learning_rate
 
-        self.history = defaultdict(list)
+        self.history = defaultdict(list) # {"train_roc_auc": [], "train_loss": [], ...}
 
         self.sigmoid = lambda x: 1 / (1 + np.exp(-x))
         self.loss_fn = lambda y, z: -np.log(self.sigmoid(y * z)).mean()
         self.loss_derivative = lambda y, z: -y * self.sigmoid(-y * z)
 
-    def partial_fit(self, x, y):
+    def partial_fit(self, X, y):
         raise Exception("partial_fit method not implemented")
 
     def fit(self, X_train, y_train, plot=False):
@@ -54,7 +54,7 @@ class Boosting:
         if plot:
             self.plot_history(...)
 
-    def predict_proba(self, x):
+    def predict_proba(self, X):
         raise Exception("predict_proba method not implemented")
 
     def find_optimal_gamma(self, y, old_predictions, new_predictions) -> float:
@@ -62,8 +62,12 @@ class Boosting:
         losses = [self.loss_fn(y, old_predictions + gamma * new_predictions) for gamma in gammas]
         return gammas[np.argmin(losses)]
 
-    def score(self, x, y):
-        return score(self, x, y)
+    def score(self, X, y):
+        return score(self, X, y)
         
-    def plot_history(self):
+    def plot_history(self, X, y):
+        """
+        :param X: features array (any set)
+        :param y: targets array (any set)
+        """
         raise Exception("plot_history method not implemented")
