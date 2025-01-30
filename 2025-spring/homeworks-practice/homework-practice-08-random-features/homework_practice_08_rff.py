@@ -69,7 +69,7 @@ class RFFPipeline(BaseEstimator):
                      Если не хотите, можете не использовать этот параметр.
         """
         self.n_features = n_features
-        self.new_dim = new_dim if use_PCA else X.shape[1]
+        self.new_dim = new_dim
         self.use_PCA = use_PCA
         if classifier_params is None:
             classifier_params = {}
@@ -80,6 +80,8 @@ class RFFPipeline(BaseEstimator):
         self.pipeline = None
 
     def fit(self, X, y):
+        if use_PCA:
+            self.new_dim = X.shape[1]
         pipeline_steps: list[tuple] = ...  # todo!
         self.pipeline = Pipeline(pipeline_steps).fit(X, y)
         return self
