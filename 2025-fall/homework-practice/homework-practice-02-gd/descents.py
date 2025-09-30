@@ -1,4 +1,3 @@
-87% of storage used … If you run out of space, you can't save to Drive or back up Google Photos. Get 100 GB of storage for RUB 139 RUB 35 for 1 month.
 import numpy as np
 from abc import ABC, abstractmethod
 
