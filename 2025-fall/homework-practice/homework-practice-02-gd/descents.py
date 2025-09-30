@@ -1,3 +1,4 @@
+87% of storage used … If you run out of space, you can't save to Drive or back up Google Photos. Get 100 GB of storage for RUB 139 RUB 35 for 1 month.
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -67,6 +68,25 @@ class StochasticGradientDescent(BaseDescent):
         # 1) выбрать случайный батч
         # 2) вычислить градиенты на батче
         # 3) обновить веса модели
+        raise NotImplementedError
+
+
+class SAGDescent(BaseDescent):
+    def __init__(self, lr_schedule: LearningRateSchedule = TimeDecayLR):
+        super().__init__(lr_schedule)
+        self.grad_memory = None
+        self.grad_sum = None
+
+    def update_weights(self):
+        # TODO: реализовать SAG
+        X_train = self.model.X_train
+        y_train = self.model.y_train
+        num_objects, num_features = X_train.shape
+
+        if self.grad_memory is None:
+            # TODO: инициализировать хранилища при первом вызове 
+
+        # TODO: реализовать SAG
         raise NotImplementedError
 
 
