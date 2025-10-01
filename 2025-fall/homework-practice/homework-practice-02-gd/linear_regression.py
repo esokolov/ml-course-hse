@@ -21,7 +21,7 @@ class LinearRegression:
         loss_function: LossFunction = LossFunction.MSE
     ):
         self.optimizer = optimizer
-        if type(optimizer) == BaseDescent:
+        if isinstance(optimizer, BaseDescent):
             self.optimizer.set_model(self)
         self.l2_coef = l2_coef
         self.tolerance = tolerance
@@ -54,7 +54,7 @@ class LinearRegression:
         # TODO: реализовать обучение модели
         self.X_train, self.y_train = X, y
 
-        if type(self.optimizer) == BaseDescent:
+        if isintance(self.optimizer, BaseDescent):
             # ...
             for _ in range(self.max_iter):
                 # 1 шаг градиентного спуска
