@@ -54,7 +54,7 @@ class LinearRegression:
         # TODO: реализовать обучение модели
         self.X_train, self.y_train = X, y
 
-        if isintance(self.optimizer, BaseDescent):
+        if isinstance(self.optimizer, BaseDescent):
             # ...
             for _ in range(self.max_iter):
                 # 1 шаг градиентного спуска
