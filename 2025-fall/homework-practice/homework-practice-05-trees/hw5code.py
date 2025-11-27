@@ -9,6 +9,8 @@ def find_best_split(feature_vector, target_vector):
     * В качестве порогов нужно брать среднее двух соседних при сортировке значений признака
     * Поведение функции в случае константного признака может быть любым
     * При одинаковых приростах критерия Джини нужно выбирать минимальный сплит
+    * Критерий Джини должен поддерживать многоклассовый случай:
+    * H(R) = 1 - sum_k p_k^2, где p_k - доля класса k в узле. Для K=2 формула сводится к 1 - p0^2 - p1^2.
     * За наличие в функции циклов балл будет снижен. Векторизуйте! :)
 
     :param feature_vector: вещественнозначный вектор значений признака
@@ -25,6 +27,15 @@ def find_best_split(feature_vector, target_vector):
 
 
 class DecisionTree:
+    """
+    Простое классификационное дерево, поддерживающее:
+    * real / categorical признаки
+    * binary и multiclass цели (метки могут быть числами или строками)
+    * ограничения max_depth, min_samples_split, min_samples_leaf (как в sklearn по смыслу)
+
+    ВНИМАНИЕ: в методе _fit_node ниже намеренно оставлены ошибки и бинарные допущения.
+    Их нужно исправить в рамках задания.
+    """
     def __init__(self, feature_types, max_depth=None, min_samples_split=None, min_samples_leaf=None):
         if np.any(list(map(lambda x: x != "real" and x != "categorical", feature_types))):
             raise ValueError("There is unknown feature type")
@@ -49,8 +60,9 @@ class DecisionTree:
             if feature_type == "real":
                 feature_vector = sub_X[:, feature]
             elif feature_type == "categorical":
+                # ВАЖНО: преобразование категориальных признаков должно работать и для multiclass.
                 counts = Counter(sub_X[:, feature])
-                clicks = Counter(sub_X[sub_y == 1, feature])
+                clicks = Counter(sub_X[sub_y == 1, feature]) 
                 ratio = {}
                 for key, current_count in counts.items():
                     if key in clicks:
