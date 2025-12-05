@@ -124,7 +124,3 @@ class DecisionTree:
         for x in X:
             predicted.append(self._predict_node(x, self._tree))
         return np.array(predicted)
-
-class LinearRegressionTree():
-    def __init__(self, feature_types, base_model_type=None, max_depth=None, min_samples_split=None, min_samples_leaf=None):
-        pass
