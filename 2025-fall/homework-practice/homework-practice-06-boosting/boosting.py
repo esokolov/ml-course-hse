@@ -34,7 +34,7 @@ class Boosting(ClassifierMixin):
         self.models = []
         self.gammas = []
 
-        self.random_state = (random_state)  # не забудьте вставить его везде, где у вас возникает рандом
+        self.random_state = random_state  # не забудьте вставить его везде, где у вас возникает рандом
         self.verbose = verbose
         self.classes_ = np.array([-1, 1])  # в нашей задаче классы захардкожены
 
@@ -78,3 +78,4 @@ class Boosting(ClassifierMixin):
 
     def score(self, X: np.ndarray, y: np.ndarray):
         return roc_auc_score(y == 1, self.predict_proba(X)[:, 1])
+
