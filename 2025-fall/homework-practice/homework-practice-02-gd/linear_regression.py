@@ -31,7 +31,6 @@ class LossFunction(ABC):
         """
         ...
     
-    @abstractmethod
     def analytic_solution(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
         X: np.ndarray, матрица регрессоров 
@@ -112,12 +111,12 @@ class MSELoss(LossFunction):
         raise NotImplementedError()
 
 
-class L1Regularization(LossFunction):
+class L2Regularization(LossFunction):
 
-    def __init__(self, core_loss: LossFunction, rate: float = 1.0,
+    def __init__(self, core_loss: LossFunction, mu_rate: float = 1.0,
                  analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None):
         self.core_loss = core_loss
-        self.rate = rate
+        self.mu_rate = mu_rate
 
         # analytic_solution_func is meant to be passed separately, 
         # as it is not linear to core solution
@@ -159,9 +158,10 @@ class CustomLinearRegression:
         # TODO: реализовать функцию предсказания в линейной регрессии
         raise NotImplementedError("predict function is not implemented")
 
-    def compute_gradients(self) -> np.ndarray:
+    def compute_gradients(self, X_batch: np.ndarray | None = None, y_batch: np.ndarray | None = None) -> np.ndarray:
         """
-        returns: np.ndarray, градиент функции потерь при текущих весах (self.w) по self.X_train, self.y_train
+        returns: np.ndarray, градиент функции потерь при текущих весах (self.w)
+        Если переданы аргументы, то градиент вычисляется по ним, иначе - по self.X_train и self.y_train
         """
         raise NotImplementedError("Gradient caclucation is not implemented")
 
