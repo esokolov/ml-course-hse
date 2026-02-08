@@ -1,0 +1,479 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{vkCourseML}
+\usepackage{cancel}
+%\usepackage{vkCourseML}
+\hypersetup{unicode=true}
+%\usepackage[a4paper]{geometry}
+\usepackage[hyphenbreaks]{breakurl}
+
+\interfootnotelinepenalty=10000
+\newcommand{\dx}[1]{\,\mathrm{d}#1} % маленький отступ и прямая d
+
+\begin{document}
+\title{Машинное обучение\\Семинар 3\\Матрично-векторное дифференцирование}
+\author{}
+\date{}
+\maketitle
+
+Как правило, дифференцируемые модели обучаются с помощью градиентного спуска (или его модификаций), для чего важно уметь
+считать градиент функционала ошибки (loss-функции) по параметрам модели. Можно считать градиент покоординатно, а потом 
+пристально смотреть на формулы и пытаться понять, как это может выглядеть в векторной форме. Однако на практике это очень
+неудобно и гораздо проще считать градиент напрямую~--- а для этого поможет знание градиентов для основных функций и основных
+правил матрично-векторного дифференцирования.
+
+
+\section{Дифференциал}
+
+\subsection{Общее определение дифференциала}
+
+Прежде чем перейти к матрично\-/векторному дифференцированию, полезно вспомнить, что такое \textbf{дифференциал функции} в самом общем виде.  
+Мы начнём с привычного случая одной переменной и постепенно обобщим понятие на произвольные нормированные линейные пространства (в которых можно мерить \textit{расстояния}).
+
+\paragraph{Случай одной переменной.}
+Пусть $f: \mathbb{R} \to \mathbb{R}$.  
+Говорят, что функция $f$ \textbf{дифференцируема} в точке $x$, если существует такое число $A$, что при $h \to 0$ выполняется разложение
+\begin{equation}\label{eq:1d-decomposition}
+    f(x + h) = f(x) + A \cdot h + o(\|h\|).
+\end{equation}
+
+\vspace{0.3em}
+В этом случае:
+\begin{itemize}
+    \item число $A$ называется \textbf{производной} функции $f$ в точке $x$ и обозначается $f'(x)$;
+    \item линейное отображение
+    \[
+        \mathrm{d}f_x(h) := f'(x) \cdot h
+    \]
+    называется \textbf{дифференциалом} функции $f$ в точке $x$.
+\end{itemize}
+
+\medskip
+\noindent
+\textit{Интуиция.}  
+Дифференциал — это не число, а \emph{линейная функция}, которая описывает «основную, линейную часть» изменения функции.
+Переписав \eqref{eq:1d-decomposition} в виде
+\[
+    f(x + h) - f(x) = \mathrm{d}f_x(h) + o(h),
+\]
+мы видим, что $\mathrm{d}f_x(h)$ — это \textbf{наилучшая линейная аппроксимация} приращения функции $f(x + h) - f(x)$, а остаток $o(h)$ убывает асимптотически быстрее, чем $h$.
+
+\paragraph{Обобщение на линейные пространства.}
+Теперь перейдём от чисел к более общим объектам, а именно \textbf{нормированным} линейным пространствам (в которых можно мерить расстояния между точками).
+
+\medskip
+\noindent
+\textbf{Определение нормы.} 
+Пусть $V$ — линейное пространство. \emph{Нормой} называется такая \emph{неотрицательная функция} $\| \cdot \|: V \to [0, +\infty)$, удовлетворяющая следующим трем свойствам:
+\begin{enumerate}
+    \item $\| x \| = 0 \Longleftrightarrow x = 0$
+    
+    \item $\|\alpha x\| = |\alpha| \cdot \|x\|,
+        \quad \forall\, \alpha \in \mathbb{R}, x \in V$
+        
+    \item $\| x + y \| \leq \| x \| + \| y \| \quad \forall\, x, y \in V$ \, \textbf{(неравенство треугольника)}
+\end{enumerate}
+Классическим примером нормы служит обычная евклидова норма (или $\ell_2$-норма) в $\mathbb{R}^d$ :  $\| x \|_2 = \sqrt{x_1^2 + \ldots + x_d^2}$. Линейное пространство с заданной нормой называют \textbf{нормированным}. Легко видеть, что в нормированном пространстве можно определить расстояние между точками следующим образом: $\text{dist}(x, y) = \|x - y\|$, таким образом нормированные пространства можно рассматривать как \textbf{метрические}. 
+
+\medskip
+\noindent
+\textbf{Дифференцируемость в общем виде.}  
+Пусть $f : V \to U$ — функция из одного нормированного линейного пространства $V$ в другое $U$.  
+Функция $f$ называется \textbf{дифференцируемой} в точке $x \in V$, если существует такое \textbf{линейное отображение} $L_x : V \to U$
+такое, что при $h \to 0$:
+\[
+    f(x + h) = f(x) + L_x(h) + o(\|h\|).
+\]
+Линейное отображение $L_x$ называется \textbf{дифференциалом} функции $f$ в точке $x$ и часто обозначается
+\[
+    \mathrm{d}f_x(h) := L_x(h).
+\]
+
+\paragraph{Обозначения.}
+В литературе встречаются разные формы записи дифференциала в точке $x$:
+\[
+    \mathrm{d}f_x(h), 
+    \quad \mathrm{d}f(x)[h], 
+    \quad \mathrm{d}f(h)
+\]
+(в последнем случае $x$ подразумевается из контекста). Иногда пишут просто $\mathrm{d}f$, подразумевая, что определенное выражение выполняется не зависимо от того, какие значения принимают $x$ и $h$.
+
+\medskip
+\noindent
+\paragraph{Демистификация $\mathrm{d} x$}
+При обсуждении дифференциалов и дифференциирования очень часто возникает путаница с тем, что же означает $\mathrm{d} x$.
+Иногда говорят, что $\mathrm{d} x$~--- бесконечно малое приращение аргумента (что бы это ни значило), а иногда, что это
+просто синоним $h$ из разложения $f(x + h) = f(x) + \mathrm{d} f_x(h) + o(\| h \|)$. Порой даже можно услышать что $\mathrm{d} f$
+и $\mathrm{d} x$~-- это просто мнемонические обозначения, не имеющие собственной сущности и необходимые просто в качестве удобной нотации.
+
+На самом деле у $\mathrm{d} x$ есть и нормальное определение, а именно: $\mathrm{d} x$~--- линейный оператор, который
+определяется в каждой точке $x \in V$ и для каждого аргумента $h \in V$ следующим образом: $\mathrm{d} x_x (h) = h$.
+Таким образом, писать, что $\mathrm{d}f_x(h) = f'(x) h$ это буквально то же самое, что и писать $\mathrm{d} f = f' \mathrm{d} x$.
+Разумеется, что т.к. этот оператор \textbf{не зависит} от точки $x$, то нет никакого смысла его с собой таскать, поэтому часто
+можно обойтись обозначением $\mathrm{d} x (h)$ или же просто $\mathrm{d} x$.
+
+\medskip
+\noindent
+\textbf{Вопрос: } А что же в общем случае является аналогом производной?
+
+\subsection{Примеры дифференциалов и производных}
+
+Для ясности, посмотрим, как для функций различных размерностей и различного количества переменных устроены
+дифференциал, производная и разложение в точке.
+
+\begin{enumerate}
+    \item \textbf{Одномерный случай:} $f: \mathbb{R} \to \mathbb{R}$
+    
+    В одномерном случае разложение должно иметь вид:
+    \begin{align*}
+        f(x + h) = f(x) + A h + o(h)
+    \end{align*}
+    Из курса анализа мы знаем, что:
+    \begin{align*}
+        f(x + h) = f(x) + f'(x) h + o(h)
+    \end{align*}
+    Таким образом:
+    \begin{itemize}
+        \item Разложение: $f(x + h) = f(x) + f'(x) h + o(h)$
+        
+        \item Дифференциал: $\mathrm{d} f_x(h) = f'(x) h$ или $\mathrm{d} f(x) = f'(x) \mathrm{d} x$
+
+        \item Производная: $f'(x)$
+    \end{itemize}
+
+    \item \textbf{Многомерная функция} $f: \mathbb{R}^n \to \mathbb{R}$
+
+    Так как линейные функции в $\mathbb{R}^n$ имеют вид $g(x) = \sum \limits_{j = 1}^n a_j x_j$, то в многомерном случае разложение $f(x + h)$ должно иметь вид:
+    \begin{align*}
+        f(x + h) &= f(x) + \sum \limits_{j = 1}^n a_j h_j + o(\| h \|_2) = \\
+        &= f(x) + \langle a, h \rangle + o(\| h \|_2)
+    \end{align*}
+    Из курса анализа, мы знаем, что вектор $a$~--- не что иное, как градиент функции $f$ в точке $x$, обозначаемый как $\nabla f(x) := (\frac{\partial f}{\partial x_1}, \ldots, \frac{\partial f}{\partial x_n})^\top$
+    
+    \begin{itemize}
+        \item Разложение: $f(x + h) = f(x) + \langle \nabla f(x), h \rangle + o(\| h \|)$
+        
+        \item Дифференциал: $\mathrm{d}f_x(h) = \langle \nabla f(x), h \rangle$ или $\mathrm{d} f(x) = \langle \nabla f(x), \mathrm{d} x \rangle$
+
+        \item Градиент: $\nabla f(x) = (\frac{\partial f}{\partial x_1}, \ldots, \frac{\partial f}{\partial x_n})^\top$
+    \end{itemize}
+
+    \item \textbf{Матричнозначная функция} $f: \mathbb{R}^{m \times n} \to \mathbb{R}$
+
+    Так как матрица~--- это по сути вектор чисел, который запихнули в табличку, то все линейные функции в $\mathbb{R}^{m \times n}$ имеют вид:
+    \begin{align*}
+        g(X) = \sum \limits_{i = 1}^m \sum \limits_{j = 1}^n A_{i, j} X_{i, j} = \langle A, X \rangle_F
+    \end{align*}
+    для некоторой матрицы $A \in \mathbb{R}^{m \times n}$. Таким образом разложение $f(X + H)$ должно иметь вид:
+    \begin{align*}
+        f(X + H) &= f(X) + \sum \limits_{i = 1}^m \sum \limits_{j = 1}^n A_{i, j} H_{i, j} + o(\| H \|_F) = \\
+        &= f(X) + \langle A, H \rangle_F + o(\| H \|_F)
+    \end{align*}
+    Здесь будет не лишним напомнить, что $\langle X, Y \rangle_F := \sum \limits_{i = 1}^m \sum \limits_{j = 1}^n X_{i, j} Y_{i, j} = \text{Tr}(X^\top Y)$ называется Фробениусовым скалярным произведением матриц $X$ и $Y$, а \newline $\| X \|_F = \sqrt{\langle X, X \rangle_F}$ называется Фробениусовой нормой матрицы $X$.
+    По аналогии с $\mathbb{R}^n$ несложно показать, что матрица $A$~--- это не что иное, как \emph{градиент} (да, в матричном случае $\nabla f(X)$ также называется градиентом):
+    \begin{align*}
+        A = \nabla f(X) = \left( \frac{\partial f}{\partial X_{i, j}} \right)_{i, j = 1}^{m, n}
+    \end{align*}
+    В данном случае:
+    \begin{itemize}
+        \item Разложение: $f(X + H) = f(X) + \langle \nabla f(X), H \rangle_F + o(\| H \|_F)$
+        
+        \item Дифференциал: $\mathrm{d} f_X(h) = \langle \nabla f(X), H \rangle_F$ или $\mathrm{d} f(X) = \langle \nabla f(X), \mathrm{d} X \rangle_F$
+
+        \item Градиент: $\langle \nabla f(X), H \rangle_F$
+    \end{itemize}
+
+    \item \textbf{Еще одна многомерная функция} $f : \mathbb{R}^n \to \mathbb{R}^m$
+
+    Линейные функции из $\mathbb{R}^n$ в $\mathbb{R}^m$ имеют вид $g(x) = A x$, где $A \in \mathbb{R}^{m \times n}$. Таким образом разложение $f(x + h)$ должно иметь вид:
+    \begin{align*}
+        f(x + h) = f(x) + A h + o(\| h \|_2)
+    \end{align*}
+    для некоторой матрицы $A \in \mathbb{R}^{m \times n}$.
+
+    Можно показать, что эта матрица $A$ равняется:
+    \begin{align*}
+        A =
+        \begin{bmatrix}
+            \frac{\partial f_1}{\partial x_1}(x) & \frac{\partial f_1}{\partial x_2}(x) & \cdots & \frac{\partial f_1}{\partial x_n}(x)\\[6pt]
+            \frac{\partial f_2}{\partial x_1}(x) & \frac{\partial f_2}{\partial x_2}(x) & \cdots & \frac{\partial f_2}{\partial x_n}(x)\\[4pt]
+            \vdots & \vdots & \ddots & \vdots\\[4pt]
+            \frac{\partial f_m}{\partial x_1}(x) & \frac{\partial f_m}{\partial x_2}(x) & \cdots & \frac{\partial f_m}{\partial x_n}(x)
+        \end{bmatrix}
+    \end{align*}
+    и называется \textbf{матрицей Якоби}. Обычно матрицу Якоби обозначают $J(x)$ или $J_x$. Таким образом:
+    \begin{itemize}
+        \item Разложение: $f(x + h) = f(x) + J_x h + o(\| h \|_2)$
+        
+        \item Дифференциал: $\mathrm{d} f_x(h) = J_x h$ или $\mathrm{d} f(x) = J_x \mathrm{d} x$
+
+        \item Матрица Якоби:
+        \[
+        J_x = 
+        \begin{bmatrix}
+            \frac{\partial f_1}{\partial x_1}(x) & \frac{\partial f_1}{\partial x_2}(x) & \cdots & \frac{\partial f_1}{\partial x_n}(x)\\[6pt]
+            \frac{\partial f_2}{\partial x_1}(x) & \frac{\partial f_2}{\partial x_2}(x) & \cdots & \frac{\partial f_2}{\partial x_n}(x)\\[4pt]
+            \vdots & \vdots & \ddots & \vdots\\[4pt]
+            \frac{\partial f_m}{\partial x_1}(x) & \frac{\partial f_m}{\partial x_2}(x) & \cdots & \frac{\partial f_m}{\partial x_n}(x)
+        \end{bmatrix}
+        \]
+    \end{itemize}
+
+    \item \textbf{Сверхобщий случай:} $f: \mathbb{R}^{d_1 \times \ldots \times d_k} \to \mathbb{R}^{D_1 \times \ldots \times D_m}$
+
+    Здесь можно поступить аналогичным образом через разложение $f(X + H)$ в виде:
+    \begin{align*}
+        f(X + H) = f(X) + L(H) + o(\| H \|)
+    \end{align*}
+    где $L(H)$~--- линейная функция вида $L(H) = \sum \limits_{i_1, \ldots, i_k} H_{i_1, \ldots, i_k} \cdot A_{i_1, \ldots, i_k}$.
+
+    В качестве аналогов градиента будут возникать уже структуры высокой размерности (тензоры), с которыми работать уже не очень удобно. Поэтому мы будем ограничиваться предыдущими пунктами ($\mathbb{R}^{m \times n} \to \mathbb{R}$, $\mathbb{R}^n \to \mathbb{R}^m$), чего нам более чем хватит для задач машинного обучения.
+\end{enumerate}
+
+\section{Как дифференцировать?}
+
+В предыдущем разделе мы вспомнили, что такое дифференциал функции в общем виде. Хотя формальное определение важно, на практике оно не всегда помогает быстро вычислять дифференциалы и градиенты. В этом разделе мы познакомимся с техникой матрично-векторного дифференцирования, которая позволяет удобно находить дифференциалы и производные функций с векторными и матричными аргументами.
+
+
+\subsection{Основные правила дифференцирования}
+
+По аналогии с одномерным случаем можно вывести несколько базовых правил дифференцирования, которые удобно использовать для вычисления дифференциалов, градиентов и других производных. Ниже приведены некоторые из этих правил:
+\begin{enumerate}
+    \item \textbf{Константа:} Если \( f(x) = \text{const} \), то её дифференциал равен нулю:
+    \[
+    \mathrm{d}f = 0
+    \]
+    
+    \item \textbf{Линейность оператора дифференцирования:} Дифференциал линейной комбинации функций равен линейной комбинации их дифференциалов:
+    \[
+    \mathrm{d}(\alpha f + \beta g) = \alpha \cdot \mathrm{d} f + \beta \cdot \mathrm{d} g
+    \]
+    где \(\alpha\) и \(\beta\) — константы.
+    
+    \item \textbf{Дифференциал линейной функции:} Если функция $f$ является линейной, то дифференциал $f(x)$ совпадает с $f(\mathrm{d} x)$:
+    \[
+    \mathrm{d}f(x) = f(\mathrm{d} x)
+    \]
+    \begin{vkExample}
+        Пусть $f(X) = A X B$, где $A, B, X \in \mathbb{R}^{n \times n}$. Тогда:
+        \begin{align*}
+            \mathrm{d} (A X B) = A \, \mathrm{d}X \, B
+        \end{align*}
+    \end{vkExample}
+    
+    \item \textbf{Правило произведения:} Дифференциал произведения двух функций равен:
+    \[
+    \mathrm{d}(f \cdot g) = f \, \mathrm{d}g + g \, \mathrm{d}f
+    \]
+    Аналогичное правило работает и для скалярных произведений:
+    \begin{align*}
+        \mathrm{d} \langle f, g \rangle = \langle \mathrm{d}f, g \rangle + \langle f, \mathrm{d} g \rangle
+    \end{align*}
+    
+    \item \textbf{Цепное правило:} Пусть \( z(x) = f(g(x)) \) — сложная функция, то её дифференциал можно выразить как:
+    \[
+    \mathrm{d}z(x)[h] = \mathrm{d}f(g(x))[\mathrm{d}g(x)[h]],
+    \]
+    На первый взгляд это правило может выглядеть жутковато, однако применять его на практике довольно просто:
+    \begin{itemize}
+        \item Вычисляем $\mathrm{d} f(x)$~-- какое-то выражение, содержащее $x$ и $\mathrm{d} x$
+
+        \item Заменяем $x \to g$, $\mathrm{d} x \to \mathrm{d} g$
+    \end{itemize}
+    Применение этого правила для матрично-векторного дифференцирования мы увидим ниже, а пока я приведу пример применения этого правила для одномерных функций.
+    \begin{vkExample}
+        Пусть $z(x) = \log{\sin{x}}$. Найти $\mathrm{d} z(x)$
+    \end{vkExample}
+    \begin{esSolution}
+        Мы имеем дело со сложной функцией: $z(x) = f(g(x))$, где $f(x) = \log{x}$, а $g(x) = \sin{x}$. Будем действовать по цепному правилу:
+        \begin{itemize}
+            \item Найдем дифференциалы $\mathrm{d} f$ и $\mathrm{d} g$:
+
+            \begin{itemize}
+                \item $\mathrm{d} f(x) = \frac{\mathrm{d} x}{x}$
+
+                \item $\mathrm{d} g(x) = \cos{x} \, \mathrm{d}x$
+            \end{itemize}
+
+            \item Возьмем $\mathrm{d} f$ и заменим $x \to g$, $\mathrm{d} x \to \mathrm{d} g$:
+            \begin{align*}
+                \mathrm{d} (f \circ g)(x) = \frac{\mathrm{d} g}{g} = \frac{\cos{x} \, \mathrm{d} x}{\sin{x}} = \text{ctg}(x) \, \mathrm{d} x
+            \end{align*}
+        \end{itemize}
+        
+    \end{esSolution}
+\end{enumerate}
+
+
+
+\begin{vkProblem}
+Пусть $f: \mathbb{R}^n \to \mathbb{R}^n$, $f(x) = x^\top A x$. Найти градиент и дифференциал функции $f(x)$.
+\end{vkProblem}
+\begin{esSolution}
+    Для начала, найдем дифференциал функции $f(x) = x^\top A x$:
+    \begin{align*}
+        \mathrm{d} (x^\top A x) &= \mathrm{d}(x^\top \cdot A x) = \text{ используем правило произведения } \\
+        &= \mathrm{d}(x^\top) \cdot Ax + x^\top \cdot \mathrm{d} (Ax) = \text{ используем линейность $Ax$ и $x^\top$  } \\
+        &= (\mathrm{d} x)^\top Ax + x^\top A \mathrm{d}x = \text{ перезаписываем через скалярное произведение } \\
+        &= \langle (A + A^\top) x, \mathrm{d}x \rangle
+    \end{align*}
+    Таким образом, дифференциал функции $f(x) = x^\top A x$ равен:
+    \begin{align*}
+        \mathrm{d} f = \langle (A + A^\top)x, \mathrm{d} x \rangle
+    \end{align*}
+    А градиент $\nabla f(x)$~--- это просто левая часть скалярного произведения (так как дифференциал $\mathrm{d} f = \langle \nabla f(x), \mathrm{d} x \rangle$):
+    \begin{align*}
+        \nabla f(x) = (A + A^\top) x
+    \end{align*}
+    Отметим, что если $A = A^\top$, то $\nabla f(x) = 2Ax$, что очень похоже на одномерный случай.
+\end{esSolution}
+
+\begin{vkCorollary}
+    Положив $A := I$, получаем $\nabla \| x \|^2 = 2x$, а $\mathrm{d} (\| x \|^2) = 2x \, \mathrm{d}x$
+\end{vkCorollary}
+
+\begin{vkProblem}
+    Пусть $f(X) = X^{-1}$, $f: \mathbb{R}^{n \times n} \to \mathbb{R}^{n \times n}$. Найти дифференциал и градиент функции $f$.
+\end{vkProblem}
+
+\begin{esSolution}
+    Рассмотрим тождественную функцию \( g(X) = X \). Тогда:
+    \[
+    (f \cdot g)(X) = I.
+    \]
+    Поскольку \( f \cdot g \) — константа, то её дифференциал равен нулю:
+    \[
+    \mathrm{d}(f \cdot g) = 0.
+    \]
+    С другой стороны, по правилу дифференцирования произведения:
+    \[
+    \mathrm{d}(f \cdot g) = \mathrm{d}f \cdot g + f \cdot \mathrm{d}g.
+    \]
+    Из этого получаем:
+    \[
+    \mathrm{d}f \cdot g + f \cdot \mathrm{d}g = 0,
+    \]
+    или
+    \[
+    \mathrm{d}(X^{-1}) \cdot X = -X^{-1} \cdot \mathrm{d}(X).
+    \]
+    Так как \( \mathrm{d}g(X) = \mathrm{d}X \), то:
+    \[
+    \mathrm{d} (X^{-1}) = -X^{-1} \cdot \mathrm{d}X \cdot X^{-1}.
+    \]
+\end{esSolution}
+
+\begin{vkProblem}
+    Пусть $z(x) = f(g(x))$. Доказать цепное правило для $z(x)$, а именно, необходимо показать, что:
+    \begin{align*}
+        \mathrm{d} z(x)[h] = \mathrm{d} f(g(x))[\mathrm{d} g(x)[h]]
+    \end{align*}
+\end{vkProblem}
+\begin{esSolution}
+    Будем действовать по определению через разложение:
+    \begin{align*}
+        z(x + h) = z(x) + \mathrm{d} z(x)[h] + o(\| h \|)
+    \end{align*}
+    Перепишем через $z(x) = f(g(x))$:
+    \begin{align*}
+        z(x + h) = f(g(x + h)) = f(g(x) + \mathrm{d} g(x)[h] + o(h))
+    \end{align*}
+    Разложим $f(g(x) + \mathrm{d} g(x)[h] + o(h))$ в точке $g(x)$:
+    \begin{align*}
+        z(x + h) = f( g(x)) + \mathrm{d} f \Big(g(x) \Big) \Big[ \mathrm{d} g(x)[h] + o(\| h \|) \Big ] + o(\| h \|)
+    \end{align*}
+    Так как $\mathrm{d} f (g(x))$~--- линейная функция, то $o(\| h \|)$ можно вытащить из квадратных скобок:
+    \begin{align*}
+        z(x + h) = z + \underbrace{\mathrm{d} f(g(x))[\mathrm{d}g(x)[h]]}_\text{$\mathrm{d} z(x)[h]$} + o(\| h \|)
+    \end{align*}
+\end{esSolution}
+
+
+\subsection{Таблица стандартных \xcancel{производных} дифференциалов}
+
+Здесь приведена таблица со списком некоторых \emph{стандартных} дифференциалов, достаточно часто используемых на практике. Некоторые из них мы уже вывели в предыдущем параграфе.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Функция} & \textbf{Дифференциал} \\
+    \hline
+    $\langle A, X \rangle = \mathrm{Tr}(A^\top X)$ & $\mathrm{d} \langle A, X \rangle = \langle A, \mathrm{d} X \rangle$ \\
+    \hline
+    $\mathrm{Tr}(X)$ & $\mathrm{d}\,\mathrm{Tr}(X) = \mathrm{Tr}(\mathrm{d} X)$ \\
+    \hline
+    $X^\top$ & $\mathrm{d}(X^\top) = (\mathrm{d}X)^\top$ \\
+    \hline
+    $\det(X)$ & $\mathrm{d}\,\det(X) = \det(X)\,\langle X^{-1}, \mathrm{d} X \rangle$ \\
+    \hline
+    $x^\top A x$ & $\mathrm{d}(x^\top A x) = \langle (A + A^\top) x, \mathrm{d}x \rangle$ \\
+    \hline
+    $\|X\|_F^2 = \mathrm{Tr}(X^\top X)$ & $\mathrm{d}\,\|X\|_F^2 = 2\,\langle X, \mathrm{d} X \rangle$ \\
+    \hline
+    $X^{-1}$ & $\mathrm{d}(X^{-1}) = -X^{-1} (\mathrm{d}X) X^{-1}$ \\
+    \hline
+    \end{tabular}
+    \caption{Стандартные дифференциалы матрично-векторных выражений}
+\end{table}
+
+\begin{vkProblem}
+    Найти дифференциал и градиент функции $\log{\text{det}(X)}$ для симметричной положительно определенной матрицы $X$.
+\end{vkProblem}
+\begin{esSolution}
+    Здесь мы имеем дело с композицией двух функций: $f(x) = \log{x}$ и \newline $g(x) = \text{det}(X)$. Вспомним цепное правило: чтобы найти дифференциал $f \circ g$, нужно:
+    \begin{itemize}
+        \item Найти $\mathrm{d} f$
+
+        \item Заменить $X \to g(X)$, $\mathrm{d} X \to \mathrm{d} g(X)$
+    \end{itemize}
+    Поехали:
+    \begin{align*}
+        \mathrm{d} (f \circ \, g)(X) = \frac{\mathrm{d} g}{g} = \frac{\text{det}(X) \langle X^{-1}, \mathrm{d} X \rangle}{\text{det}(X)} = \langle X^{-1}, \mathrm{d} X \rangle
+    \end{align*}
+    Таким образом, получаем:
+    \begin{itemize}
+        \item \textbf{Дифференциал}: $\mathrm{d} \log{\det}(X) = \langle X^{-1}, \mathrm{d}X \rangle$
+
+        \item \textbf{Градиент}: $\nabla \log{\text{det}(X)} = X^{-1}$
+    \end{itemize}
+\end{esSolution}
+
+
+\begin{vkProblem}(\textbf{VIP пример}) Рассмотрим крайне важный пример матрично-векторной функции~--- функция потерь MSE для задачи линейной регрессии:
+\begin{align*}
+    L(w) = \frac{1}{N} \| X w - y \|_2^2 = \frac{1}{N} \sum \limits_{i = 1}^N (\langle x_i, w \rangle - y)^2
+\end{align*}
+где $X \in \mathbb{R}^{N \times d}$~--- матрица <<объект-признак>>, $y$~--- столбец целевой переменной, а $w \in \mathbb{R}^d$~--- параметры модели (линейной регрессии).
+
+Допустим мы хотим обучать линейную регрессию с MSE с помощью градиентного спуска. Необходимо найти градиент функции потерь по отношению к параметрам модели $w$.
+\end{vkProblem}
+\begin{esSolution}
+    Найдем дифференциал функции $\mathrm{d}L(w)$:
+    \begin{align*}
+        \mathrm{d}L(w) &= \mathrm{d} \left( \frac{1}{N} \| X w - y \|^2 \right) = \frac{1}{N} \mathrm{d} \langle X w - y, X w - y \rangle = \text{правило произведения} \\
+        &= \frac{2}{N} \langle Xw - y, \, \mathrm{d}(Xw - y) \rangle
+    \end{align*}
+    Так как $-y$ константа, а $X w$ линейно, то $\mathrm{d}(Xw - y) = X \mathrm{d}w$:
+    \begin{align*}
+        \mathrm{d}L(w) = \frac{2}{N} \langle Xw - y, X \mathrm{d}w \rangle = \frac{2}{N} \langle X^\top (Xw - y), \mathrm{d} w \rangle 
+    \end{align*}
+    Таким образом, градиент $\nabla_w L(w)$ равен:
+    \begin{align*}
+        \nabla_w L(w) = \frac{2}{N} X^\top (Xw - y)
+    \end{align*}
+\end{esSolution}
+
+\begin{vkProblem}
+    $f(x) = \| x \|^\frac{3}{2}$. Найти градиент и дифференциал функции $f$.
+\end{vkProblem}
+\begin{esSolution}
+    Найдем дифференциал:
+    \begin{align*}
+        \mathrm{d} \| x \|^\frac{3}{2} = \mathrm{d} (\| x \|^2)^\frac{3}{4} = \frac{3}{4} (\| x \|^2)^{-\frac{1}{4}} \, \mathrm{d} (\| x \|^2) = \frac{3}{4 \| x \|^\frac{1}{2}} \langle 2 x, \, \mathrm{d}x \rangle = \Big \langle \frac{3 x}{2 \| x \|^\frac{1}{2}}, \, \mathrm{d}x \Big \rangle
+    \end{align*}
+    Таким образом, дифференциал равен $\mathrm{d} f(x) = \Big \langle \frac{3 x}{2 \| x \|^\frac{1}{2}}, \, \mathrm{d}x \Big \rangle$, а градиент $\nabla f(x) = \frac{3x}{2 \| x\|^\frac{1}{2}}$
+\end{esSolution}
+
+
+\end{document}
