@@ -1,5 +1,5 @@
 import numpy as np
-from descents import BaseDescent, AnalyticSolutionOptimizer
+from descents import BaseDescent, AnalyticSolutionOptimizer, AbstractOprimizer
 from dataclasses import dataclass
 from enum import auto, Enum
 from typing import Dict, Type, Optional, Callable
@@ -44,10 +44,14 @@ class LossFunction(ABC):
 
 class MSELoss(LossFunction):
 
-    def __init__(self, analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None):
+    def __init__(self, analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None,
+                 svd_trunc_num: int | None = None):
 
         if analytic_solution_func is None:
             self.analytic_solution_func = self._plain_analytic_solution
+        
+        self.svd_trunc_num = svd_trunc_num
+        # число singluar values которые нужно использовать в svd closed-form решении 
         
 
     def loss(self, X: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
@@ -81,8 +85,11 @@ class MSELoss(LossFunction):
 
         returns: np.ndarray, оптимальный по MSE вектор весов, вычисленный при помощи аналитического решения для данных X, y
         """
-        #  Функция-диспатчер в одну из истинных функций для вычисления решения по явной формуле (closed-form)
+        # Функция-диспатчер в одну из истинных функций для вычисления решения по явной формуле (closed-form)
+        # Необходима в связи c наличием интерфейса analytic_solution у любого лосса; 
+        # self-injection даёт возможность выбирать, какое именно closed-form решение использовать
         return self.analytic_solution_func(X, y)
+        
     
     @classmethod
     def _plain_analytic_solution(cls, X: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -111,6 +118,9 @@ class L1Regularization(LossFunction):
                  analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None):
         self.core_loss = core_loss
         self.rate = rate
+
+        # analytic_solution_func is meant to be passed separately, 
+        # as it is not linear to core solution
     
 
     def gradient(self, X: np.ndarray, y: np.ndarray, w: np.ndarray) -> np.ndarray:
@@ -124,10 +134,10 @@ class L1Regularization(LossFunction):
 
 
 
-class LinearRegression:
+class CustomLinearRegression:
     def __init__(
         self,
-        optimizer: Optional[BaseDescent | AnalyticSolutionOptimizer] = None, # fix it, perhaps refactoring of the responsibility is needed
+        optimizer: AbstractOprimizer,
         # l2_coef: float = 0.0,
         loss_function: LossFunction = MSELoss()
     ):
@@ -136,6 +146,7 @@ class LinearRegression:
 
         # self.l2_coef = l2_coef
         self.loss_function = loss_function
+        self.loss_history = []
         self.w = None
         self.X_train = None
         self.y_train = None

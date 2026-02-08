@@ -27,11 +27,24 @@ class TimeDecayLR(LearningRateSchedule):
         returns: float, learning rate для iteration шага обучения
         """
         # TODO: реализовать формулу затухающего шага обучения
-        raise NotImplementedError
+        raise NotImplementedError()
+
+
+class AbstractOprimizer(ABC):
+    def set_model(self, model) -> None:
+        self.model = model
+    
+    @abstractmethod
+    def optimize(self) -> None:
+        """
+        Оркестрирует весь алгоритм обучения.
+        """
+        ...
+
 
 
 # ===== Base Optimizer =====
-class BaseDescent(ABC):
+class BaseDescent(AbstractOprimizer, ABC):
     """
     Оптимизатор, имплементирующий градиентный спуск.
     Ответственен только за имплементацию общего алгоритма спуска.
@@ -49,9 +62,6 @@ class BaseDescent(ABC):
 
         self.iteration = 0
         self.model = None
-
-    def set_model(self, model) -> None:
-        self.model = model
 
     @abstractmethod
     def _update_weights(self) -> np.ndarray:
@@ -79,7 +89,7 @@ class BaseDescent(ABC):
         """
         ...
         # TODO: implement
-        # В конце также назначает атрибуту модели полученный loss_history
+        # в конце также приcваивает атрибуту модели полученный loss_history
 
 
 # ===== Specific Optimizers =====
@@ -152,16 +162,14 @@ class Adam(BaseDescent):
 
 
 # ===== Non-iterative Algorithms ====
-class AnalyticSolutionOptimizer:
+class AnalyticSolutionOptimizer(AbstractOprimizer):
     """
     Универсальный дамми-класс для вызова аналитических решений 
     """
     def __init__(self):
-            self.model = None
-
-    def set_model(self, model) -> None:
-        self.model = model
+        self.model = None
     
+
     def optimize(self) -> None:
         """
         Определяет аналитическое решение и назначает его весам модели.

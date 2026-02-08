@@ -1,5 +1,5 @@
 from descents import VanillaGradientDescent, AnalyticSolutionOptimizer
-from linear_regression import LinearRegression, MSELoss
+from linear_regression import CustomLinearRegression, MSELoss
 
 
 X = ...
@@ -10,7 +10,7 @@ y = ...
 
 vanilla_optimizer = VanillaGradientDescent()
 
-linreg = LinearRegression(vanilla_optimizer, loss_function=MSELoss())
+linreg = CustomLinearRegression(vanilla_optimizer, loss_function=MSELoss())
 
 linreg.fit(X, y)
 
@@ -38,7 +38,7 @@ closed_form_optimizer = AnalyticSolutionOptimizer()
 
 loss = MSELoss(analytic_solution_func=MSELoss._svd_analytic_solution)
 
-linreg_analyt = LinearRegression(closed_form_optimizer, 
+linreg_analyt = CustomLinearRegression(closed_form_optimizer, 
                           loss_function=loss)
 
 linreg_analyt.fit(X, y)
@@ -63,7 +63,7 @@ loss.analytic_solution(X, y) -> MSELoss._svd_analytic_solution(X, y)
 
 
 """
-Регуляризация имплеменируется как класс с интерфейсом LossFunction, 
+Регуляризация имплементируется как класс с интерфейсом LossFunction, 
 который принимает на вход loss, который мы хотим регуляризовать, 
 и для имплементации интерфейса внутри методов дергает методы исходного лосса, 
 и прибавляет к ним свой численный кусочек, что возможно благодаря линейности градиента.
