@@ -49,14 +49,13 @@ class LossFunctionClosedFormMixin(ABC):
 
 class MSELoss(LossFunction, LossFunctionClosedFormMixin):
 
-    def __init__(self, analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None,
-                 svd_trunc_num: int | None = None):
+    def __init__(self, analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None):
 
         if analytic_solution_func is None:
             self.analytic_solution_func = self._plain_analytic_solution
-        
-        self.svd_trunc_num = svd_trunc_num
-        # число singluar values которые нужно использовать в svd closed-form решении 
+        else:
+            self.analytic_solution_func = analytic_solution_func
+
         
 
     def loss(self, X: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
