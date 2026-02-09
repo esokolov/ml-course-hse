@@ -103,7 +103,7 @@ class VanillaGradientDescent(BaseDescent):
 
 
 class StochasticGradientDescent(BaseDescent):
-    def __init__(self, *args, batch_size=1, **kwargs):
+    def __init__(self, *args, batch_size=32, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch_size = batch_size
 
@@ -116,10 +116,11 @@ class StochasticGradientDescent(BaseDescent):
 
 
 class SAGDescent(BaseDescent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, batch_size=32, **kwargs):
         super().__init__(*args, **kwargs)
         self.grad_memory = None
         self.grad_sum = None
+        self.batch_size = batch_size
 
     def _update_weights(self) -> np.ndarray:
         # TODO: реализовать SAG
