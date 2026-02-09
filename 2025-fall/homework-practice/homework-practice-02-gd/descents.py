@@ -58,7 +58,6 @@ class BaseDescent(AbstractOprimizer, ABC):
         self.lr_schedule = lr_schedule
         self.tolerance = tolerance
         self.max_iter = max_iter
-        self.loss_history = []
 
         self.iteration = 0
         self.model = None
@@ -79,7 +78,7 @@ class BaseDescent(AbstractOprimizer, ABC):
 
         returns: np.ndarray, w_{k+1} - w_k
         """
-        delta = self.update_weights()
+        delta = self._update_weights()
         self.iteration += 1
         return delta
 
@@ -94,7 +93,7 @@ class BaseDescent(AbstractOprimizer, ABC):
 
 # ===== Specific Optimizers =====
 class VanillaGradientDescent(BaseDescent):
-    def update_weights(self) -> np.ndarray:
+    def _update_weights(self) -> np.ndarray:
         # TODO: реализовать vanilla градиентный спуск
         # Можно использовать атрибуты класса self.model
         X_train = self.model.X_train
@@ -108,7 +107,7 @@ class StochasticGradientDescent(BaseDescent):
         super().__init__(lr_schedule)
         self.batch_size = batch_size
 
-    def update_weights(self) -> np.ndarray:
+    def _update_weights(self) -> np.ndarray:
         # TODO: реализовать стохастический градиентный спуск
         # 1) выбрать случайный батч
         # 2) вычислить градиенты на батче
@@ -122,7 +121,7 @@ class SAGDescent(BaseDescent):
         self.grad_memory = None
         self.grad_sum = None
 
-    def update_weights(self) -> np.ndarray:
+    def _update_weights(self) -> np.ndarray:
         # TODO: реализовать SAG
         X_train = self.model.X_train
         y_train = self.model.y_train
@@ -142,7 +141,7 @@ class MomentumDescent(BaseDescent):
         self.beta = beta
         self.velocity = None
 
-    def update_weights(self) -> np.ndarray:
+    def _update_weights(self) -> np.ndarray:
         # TODO: реализовать градиентный спуск с моментумом
         raise NotImplementedError
 
@@ -156,7 +155,7 @@ class Adam(BaseDescent):
         self.m = None
         self.v = None
 
-    def update_weights(self) -> np.ndarray:
+    def _update_weights(self) -> np.ndarray:
         # TODO: реализовать Adam по формуле из ноутбука
         raise NotImplementedError
 
