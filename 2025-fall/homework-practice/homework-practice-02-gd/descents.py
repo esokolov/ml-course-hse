@@ -99,12 +99,12 @@ class VanillaGradientDescent(BaseDescent):
         X_train = self.model.X_train
         y_train = self.model.y_train
         # gradient = ...
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class StochasticGradientDescent(BaseDescent):
-    def __init__(self, lr_schedule: LearningRateSchedule = TimeDecayLR(), batch_size=1):
-        super().__init__(lr_schedule)
+    def __init__(self, *args, batch_size=1, **kwargs):
+        super().__init__(*args, **kwargs)
         self.batch_size = batch_size
 
     def _update_weights(self) -> np.ndarray:
@@ -112,12 +112,12 @@ class StochasticGradientDescent(BaseDescent):
         # 1) выбрать случайный батч
         # 2) вычислить градиенты на батче
         # 3) обновить веса модели
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class SAGDescent(BaseDescent):
-    def __init__(self, lr_schedule: LearningRateSchedule = TimeDecayLR()):
-        super().__init__(lr_schedule)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.grad_memory = None
         self.grad_sum = None
 
@@ -132,23 +132,23 @@ class SAGDescent(BaseDescent):
             # TODO: инициализировать хранилища при первом вызове 
 
         # TODO: реализовать SAG
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class MomentumDescent(BaseDescent):
-    def __init__(self, lr_schedule: LearningRateSchedule = TimeDecayLR(), beta=0.9):
-        super().__init__(lr_schedule)
+    def __init__(self,  *args, beta=0.9, **kwargs):
+        super().__init__(*args, **kwargs)
         self.beta = beta
         self.velocity = None
 
     def _update_weights(self) -> np.ndarray:
         # TODO: реализовать градиентный спуск с моментумом
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class Adam(BaseDescent):
-    def __init__(self, lr_schedule: LearningRateSchedule = TimeDecayLR(), beta1=0.9, beta2=0.999, eps=1e-8):
-        super().__init__(lr_schedule)
+    def __init__(self, *args, beta1=0.9, beta2=0.999, eps=1e-8, **kwargs):
+        super().__init__(*args, **kwargs)
         self.beta1 = beta1
         self.beta2 = beta2
         self.eps = eps
@@ -157,7 +157,7 @@ class Adam(BaseDescent):
 
     def _update_weights(self) -> np.ndarray:
         # TODO: реализовать Adam по формуле из ноутбука
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 # ===== Non-iterative Algorithms ====
