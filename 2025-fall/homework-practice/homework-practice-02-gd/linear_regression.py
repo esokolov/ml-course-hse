@@ -31,6 +31,10 @@ class LossFunction(ABC):
         """
         ...
     
+
+class LossFunctionClosedFormMixin(ABC):
+
+    @abstractmethod
     def analytic_solution(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
         X: np.ndarray, матрица регрессоров 
@@ -41,7 +45,9 @@ class LossFunction(ABC):
         ...
 
 
-class MSELoss(LossFunction):
+
+
+class MSELoss(LossFunction, LossFunctionClosedFormMixin):
 
     def __init__(self, analytic_solution_func: Callable[[np.ndarray, np.ndarray], np.ndarray] = None,
                  svd_trunc_num: int | None = None):
@@ -166,9 +172,10 @@ class CustomLinearRegression:
         raise NotImplementedError("Gradient caclucation is not implemented")
 
 
-    def compute_loss(self) -> float:
+    def compute_loss(self, X_batch: np.ndarray | None = None, y_batch: np.ndarray | None = None) -> float:
         """
         returns: np.ndarray, значение функции потерь при текущих весах (self.w) по self.X_train, self.y_train
+        Если переданы аргументы, то градиент вычисляется по ним, иначе - по self.X_train и self.y_train
         """
         raise NotImplementedError("Loss calculation is not implemented")
 
