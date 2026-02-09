@@ -31,7 +31,7 @@ class TimeDecayLR(LearningRateSchedule):
 
 
 class AbstractOprimizer(ABC):
-    def set_model(self, model) -> None:
+    def set_model(self, model: 'CustomLinearRegression') -> None:
         self.model = model
     
     @abstractmethod
@@ -174,7 +174,6 @@ class AnalyticSolutionOptimizer(AbstractOprimizer):
         """
         Определяет аналитическое решение и назначает его весам модели.
         """
-        ...
         # не должна содержать непосредственных формул аналитического решения, за него ответственен другой объект
-
+        ...
 
