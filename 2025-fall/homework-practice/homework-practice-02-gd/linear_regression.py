@@ -1,49 +1,8 @@
-import numpy as np
+import numpy as np 
+from interfaces import LossFunction, LossFunctionClosedFormMixin, LinearRegressionInterface
 from descents import BaseDescent, AnalyticSolutionOptimizer, AbstractOprimizer
-from dataclasses import dataclass
-from enum import auto, Enum
 from typing import Dict, Type, Optional, Callable
 from abc import abstractmethod, ABC
-
-
-
-class LossFunction(ABC):
-
-    @abstractmethod
-    def loss(self, X: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
-        """
-        X: np.ndarray, матрица регрессоров 
-        y: np.ndarray, вектор таргета
-        w: np.ndarray, вектор весов
-
-        returns: float, значение функции потерь на данных X,y для весов w
-        """
-        ...
-
-    @abstractmethod
-    def gradient(self, X: np.ndarray, y: np.ndarray, w: np.ndarray) -> np.ndarray:
-        """
-        X: np.ndarray, матрица регрессоров 
-        y: np.ndarray, вектор таргета
-        w: np.ndarray, вектор весов
-
-        returns: np.ndarray, численный градиент функции потерь в точке w
-        """
-        ...
-    
-
-class LossFunctionClosedFormMixin(ABC):
-
-    @abstractmethod
-    def analytic_solution(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """
-        X: np.ndarray, матрица регрессоров 
-        y: np.ndarray, вектор таргета
-
-        returns: np.ndarray, оптимальный вектор весов, вычисленный при помощи аналитического решения для данных X, y
-        """
-        ...
-
 
 
 
@@ -138,7 +97,7 @@ class L2Regularization(LossFunction):
 
 
 
-class CustomLinearRegression:
+class CustomLinearRegression(LinearRegressionInterface):
     def __init__(
         self,
         optimizer: AbstractOprimizer,

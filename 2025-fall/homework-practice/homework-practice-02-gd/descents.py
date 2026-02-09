@@ -1,12 +1,9 @@
 import numpy as np
 from abc import ABC, abstractmethod
+from interfaces import LearningRateSchedule, AbstractOprimizer, LinearRegressionInterface
+
 
 # ===== Learning Rate Schedules =====
-class LearningRateSchedule(ABC):
-    @abstractmethod
-    def get_lr(self, iteration: int) -> float:
-        pass
-
 
 class ConstantLR(LearningRateSchedule):
     def __init__(self, lr: float):
@@ -30,15 +27,6 @@ class TimeDecayLR(LearningRateSchedule):
         raise NotImplementedError()
 
 
-class AbstractOprimizer(ABC):
-    def set_model(self, model: 'CustomLinearRegression') -> None:
-        self.model = model
-    
-    @abstractmethod
-    def optimize(self) -> None:
-        """
-        Оркестрирует весь алгоритм обучения.
-        """
         ...
 
 
@@ -60,7 +48,7 @@ class BaseDescent(AbstractOprimizer, ABC):
         self.max_iter = max_iter
 
         self.iteration = 0
-        self.model = None
+        self.model: LinearRegressionInterface = None
 
     @abstractmethod
     def _update_weights(self) -> np.ndarray:
