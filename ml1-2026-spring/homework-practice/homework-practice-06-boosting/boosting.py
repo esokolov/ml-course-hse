@@ -40,7 +40,7 @@ class BoostingClassifier(ClassifierMixin):
 
         self.sigmoid = lambda x: 1 / (1 + np.exp(-x))
         self.loss_fn = lambda y, z: -np.log(self.sigmoid(y * z)).mean()
-        self.loss_derivative = lambda y, z: z * np.exp(np.log(y))  # Исправьте формулу на правильную.
+        self.grad_fn = lambda y, z: z * np.exp(np.log(y))  # Исправьте формулу на правильную.
 
     def partial_fit(self, X: np.ndarray, y: np.ndarray) -> None:
         # ! YOUR CODE HERE !
