@@ -1,0 +1,137 @@
+\documentclass[12pt,fleqn]{article}
+\usepackage{../lecture-notes/vkCourseML}
+\theorembodyfont{\rmfamily}
+\newtheorem{esProblem}{Задача}
+
+\title{Машинное обучение, ФКН ВШЭ\\Теоретическое домашнее задание №5\\Решения}
+\author{Калмыков Азат}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{esProblem}
+    Рассмотрим двойственное представление задачи гребневой регрессии:
+    \[
+        Q(a)
+        =
+        \frac{1}{2} \| K a - y \|^2 + \frac{\lambda}{2} a^T K a \to \min_a.
+    \]
+    Покажите, что решение этой задачи записывается как
+    \[
+        a = (K + \lambda I)^{-1} y.
+    \]
+\end{esProblem}
+\begin{esSolution}
+
+\end{esSolution}
+
+\begin{esProblem}
+    Покажите, что функция
+    \[
+        K(x, z) = \cos(x - z)
+    \]
+    для~$x, z \in \RR$ является ядром.
+\end{esProblem}
+\begin{esSolution}
+    \begin{equation*}
+        K(x, z) = \cos(x-z) = \sin(x) \cdot \sin(z) + \cos(x) \cdot \cos(z)
+    \end{equation*}
+
+    Тогда при $\varphi\colon \mathbb{R} \to \mathbb{R}, \varphi(x) = (\sin(x), \cos(x))$ получим, что $\langle \varphi(x), \varphi(z) \rangle = K(x, z)$. Значит $K$ - ядро.
+\end{esSolution}
+
+\begin{esProblem}
+    Рассмотрим функцию, равную косинусу угла между двумя векторами~$x, z \in \RR^d$:
+    \[
+        K(x, z) = \cos(\widehat{x, z}).
+    \]
+    Покажите, что она является ядром.
+\end{esProblem}
+\begin{esSolution}
+    Распишем по определению: 
+    
+    \begin{equation*}
+        K(x, z) = \frac{\langle x, z \rangle}{\left\Vert x \right\Vert\left\Vert z \right\Vert} = \langle \frac{x}{\left\Vert x \right\Vert}, \frac{z}{\left\Vert z \right\Vert} \rangle
+    \end{equation*}
+    
+    Тогда K - это скалярное произведение, если взять в качестве спрямляющего отображения $\varphi(x) = \frac{x}{\left\Vert x \right\Vert}$. Значит $K$ - ядро.
+\end{esSolution}
+
+\begin{esProblem}
+    Рассмотрим ядра~$K_1(x, z) = (xz + 1)^2$ и~$K_2(x, z) = (xz - 1)^2$,
+    заданные для~$x, z \in \RR$.
+    Найдите спрямляющие пространства для~$K_1$, $K_2$ и~$K_1 + K_2$.
+\end{esProblem}
+\begin{esSolution}
+    \begin{gather*}
+        K_1(x, z) = (xz + 1)^2 = x^2 z^2 + 2xz + 1 = \\
+        (x^2)(z^2) + (\sqrt{2}x)(\sqrt{2}z) + (1)(1)
+    \end{gather*}
+
+    Тогда при $\varphi_1\colon \mathbb{R} \to \mathbb{R}, \varphi_1(x) = (x^2, \sqrt{2}x, 1)$ получим, что $\langle \varphi_1(x), \varphi_1(z) \rangle = K_1(x, z)$. Значит $\varphi_1$ - подходящее спрямляющее отображение для $K_1$.
+    
+    Можно заметить, что $K_2$ на самом деле не является ядром. В самом деле, давайте запишем матрицу Грама для 2 точек $x_1 = 1, x_2 = 2$. Получим матрицу: 
+    
+    \begin{equation*}
+    K = 
+        \begin{pmatrix}
+            K(1, 1) & K(1, 2) \\
+            K(2, 1) & K(2, 2)
+        \end{pmatrix}
+        = 
+        \begin{pmatrix}
+            0 & 1 \\
+            1 & 3 
+        \end{pmatrix}
+    \end{equation*}
+    
+    По теореме Мерсера мы знаем, что неотрицательная определённость матрицы Грама любого набора точек является необходимым условием того, что функция является ядром. Но $\det K = -1$. Значит это не ядро. 
+    
+    \begin{gather*}
+        (K_1 + K_2)(x, z) = (xz + 1)^2 + (xz - 1)^2 =
+        \\
+        x^2 z^2 + 2xz + 1 + x^2 z^2 - 2xz + 1 = 
+        (\sqrt{2}x^2)(\sqrt{2}z^2) + \sqrt{2}\sqrt{2}
+    \end{gather*}
+    
+    Тогда при $\varphi_{1+2}\colon \mathbb{R} \to \mathbb{R}, \varphi_{1+2}(x) = (\sqrt{2}x^2, \sqrt{2})$ получим, что $\langle \varphi_{1+2}(x), \varphi_{1+2}(z) \rangle = (K_1 + K_2)(x, z)$. Значит $\varphi_{1+2}$ - подходящее спрямляющее отображение для $K_1 + K_2$.
+\end{esSolution}
+
+\begin{esProblem}
+    Рассмотрим следующую функцию на пространстве вещественных чисел:
+    \[
+        K(x, z) = \frac{1}{1 + e^{-xz}}.
+    \]
+    Покажите, что она не является ядром.
+\end{esProblem}
+
+\begin{esSolution}
+
+    Рассмотрим точки $x_1 = 1, x_2 = 2$. Для этой системы точек матрица Грама будет иметь вид: 
+    
+    \begin{equation*}
+        K = 
+        \begin{pmatrix}
+            K(1, 1) & K(1, 2) \\
+            K(2, 1) & K(2, 2)
+        \end{pmatrix}
+    \end{equation*}
+
+    По теореме Мерсера мы знаем, что неотрицательная определённость матрицы Грама любого набора точек является необходимым условием того, что функция является ядром. Но 
+    
+    \begin{gather*}
+        \det K = K(1, 1)K(2, 2) - K(2, 1)K(1, 2) = 
+        \frac{1}{(1 + e^{-1})(1 + e^{-4})} - \frac{1}{(1 + e^{-2})^2} = 
+        \\
+        \frac{1 + 2 e^{-2} + e^{-4} - (1 + e^{-1} + e^{-4} + e^{-5})}{(1 + e^{-1})(1 + e^{-4})(1 + e^{-2})^2} = 
+        \frac{2e^{-2} - e^{-1} - e^{-5}}{(1 + e^{-1})(1 + e^{-4})(1 + e^{-2})^2}  < \\
+        \{e > 2\} < 
+        \frac{e^{-1} - e^{-1} - e^{-5}}{(1 + e^{-1})(1 + e^{-4})(1 + e^{-2})^2} < 0
+    \end{gather*}
+    
+    Значит необходимое условие не выполнено и $K$ - не ядро.
+    
+\end{esSolution}
+
+\end{document}
